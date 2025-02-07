@@ -1,0 +1,129 @@
+/* Default (Desktop) Layout */
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 20px;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+}
+
+.contact-info {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.contact-info a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.contact-info a:hover {
+  text-decoration: underline;
+}
+
+.job-title {
+    font-style: bold;
+    
+}
+
+section {
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 1.75em;
+  border-bottom: 2px solid #2c3e50;
+  padding-bottom: 5px;
+  margin-top: 20px;
+}
+
+h3 {
+  font-size: 1.25em;
+  margin-bottom: 5px;
+}
+
+ul {
+  list-style-type: disc;
+  margin: 10px 0 10px 20px;
+}
+
+.skills-list {
+    columns: 2;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px auto;
+}
+
+/* Mobile Layout (Scales Down) */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  header h1 {
+    font-size: 2em;
+  }
+
+  .contact-info {
+    font-size: 0.8em;
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  h3 {
+    font-size: 1.1em;
+  }
+
+  img {
+    max-width: 80%;
+  }
+
+  .skills-list {
+      columns: 1;
+  }
+}
+
+/* Print Layout */
+@media print {
+  body {
+    background-color: #fff;
+    color: #000;
+    padding: 0;
+  }
+
+  .contact-info a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  .noprint {
+      display: none;
+  }
+
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  h2 {
+    border-bottom: 1px solid #000;
+  }
+}

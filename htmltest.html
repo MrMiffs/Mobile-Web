@@ -1,0 +1,52 @@
+<!DOCTYPE html> <!-- This indicates the html5 document type -->
+<html>
+  <head>
+    <!-- Put keywords here -->
+    <title>BIG TITLE</title>
+  </head>
+  <style>
+    .prose {
+	font-style: italic;
+	font-weight: bold;
+    }
+    #first {
+	border-left: 20px dotted blue;
+    }
+  </style>
+  <script src="javascripttest.js"></script>
+
+  <form>
+    <label for="name">Name:</label>
+    <input id="name" name="name" />
+    <input type="submit" value="Submit" />
+    <label for="number">Number:</label>
+    <input id="number" name="number" type="number" />
+    <input type="submit" value="Submit" />
+  </form>
+  
+  <body>
+    <nav>
+	<a href="https://www.youtube.com">This is the hyperlink text</a>
+	<!-- a is anchor tag, href is hyperlink reference -->
+	<!-- hyperlinks actually refence files, using 
+	[[<scheme>://]<authority>]<resource -->
+	<!-- can extend resource path with [?param1=val2&param2...][#anchor] -->
+    </nav>
+    <section id="first">
+    <h1>Headings can range</h1>
+    <p class="prose">There is some text here. "&ltp&gt" stands for paragraph</p>
+    <h2>from h1-h6</h2>
+    </section>
+    <section>
+    <h3>Sections</h3>
+    <p>Can be <u>used <b>to <i>organize</i></b> formatting</u></p>
+    <ul> <!-- Unordered List -->
+        <li>List Item 1</li>
+	<li>Item 2</li>
+    </ul>
+	<!-- ol will order items when displayed -->
+    </section>
+    <img src="https://www.seriouseats.com/thmb/9L7fETyEBe4F8GAU5s-eaGYPCg8=/1088x0/filters:no_upscale():max_bytes(150000):strip_icc()/__opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.com__images__2014__06__20140623-cheese101-hard-cheese-emmenthaler-vicky-wasik-1-4398121bd8f54e058d8277e17086e3f7.jpg" width="200" height="200" title="big cheese"/>
+    <iframe src="https://youtu.be/D2_r4q2imnQ" controls />
+  </body>
+</html>
