@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="color.css" />
+    <title>Color Slider</title>
+  </head>
+  <body>
+    <h1>Color Slider</h1>
+    <section id="color-holder">
+      <div id="color-preview"></div>
+    </section>
+    <br>
+    <section id="button-holder">
+      <h1>Add/Remove Colors</h1>
+      <button class="size-button" id="add-button" type="button" name="add-button">+</button>
+      <button class="size-button" id="remove-button" type="button" name="remove-button">-</button>
+    </section>
+    <br>
+    <label for="red">Red:</label>
+    <input type="range" id="red" min="0" max="255" value="128">
+    <br>
+    <label for="green">Green:</label>
+    <input type="range" id="green" min="0" max="255" value="128">
+    <br>
+    <label for="blue">Blue:</label>
+    <input type="range" id="blue" min="0" max="255" value="128">
+    <br>
+    <p>Current Color: <span id="color-value">load error</span></p>
+
+    <!-- Custom Context Menu for Colors -->
+    <div id="custom-context-menu" class="hidden">
+      <ul>
+	<li><button id="delete-preview">Delete</button></li>
+	<li><button id="copy-color">Copy Color</button></li>
+      </ul>
+    </div>
+    
+    <script src="color.js"></script>
+  </body>
+</html>
