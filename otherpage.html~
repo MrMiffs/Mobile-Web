@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="en">
+    <link rel="stylesheet" href="sitestyle.css">
+    <title>Other Page</title>
+  </head>
+  <body>
+    <section class="greeting">
+      <h1>This is the Other Page</h1>
+      <p></p>
+    </section>
+  </body>
+</html>
