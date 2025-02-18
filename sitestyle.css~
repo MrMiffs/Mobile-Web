@@ -1,0 +1,11 @@
+h1 {
+    animation: blink 1.5s linear infinite;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+@keyframes blink {
+    50% {
+	opacity: 0;
+    }
+}
