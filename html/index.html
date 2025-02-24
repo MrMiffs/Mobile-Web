@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dancer API</title>
+</head>
+<body>
+  <h1>Dancer API</h1>
+  <form action="/api" method="POST">
+    <label for="who">Who:</label>
+    <input name="who" id="who" required />
+    <label for="x">x:</label>
+    <input name="x" id="x" required />
+    <label for="y">y:</label>
+    <input name="y" id="y" required />
+    <input type="submit" value="Add Dancer" />
+  </form>
+
+  <h2>Dancer List</h2>
+  <ul id="dancer-list"></ul>
+
+  <script>
+   // Fetch and display dancers
+   async function fetchDancers() {
+     const response = await fetch('/api');
+     const dancers = await response.json();
+     const dancerList = document.getElementById('dancer-list');
+     dancerList.innerHTML = dancers.map(dancer => `
+        <li>
+          ${dancer.who} (${dancer.x}, ${dancer.y})
+          <button onclick="deleteDancer('${dancer.id}')">Delete</button>
+        </li>
+     `).join('');
+   }
+
+   // Delete a dancer
+   async function deleteDancer(id) {
+     await fetch(`/api?id=${id}`, { method: 'DELETE' });
+     fetchDancers();
+   }
+
+   // Initial fetch
+   fetchDancers();
+  </script>
+</body>
+</html>
