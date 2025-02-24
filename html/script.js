@@ -1,0 +1,93 @@
+// Handle Add Dancer form submission
+document.getElementById('Add').addEventListener('submit', async (event) => {
+  event.preventDefault(); // Prevent the default form submission
+
+  const formData = new FormData(event.target);
+  const data = {
+    who: formData.get('who'),
+    x: formData.get('x'),
+    y: formData.get('y'),
+  };
+
+  try {
+    const response = await fetch('/api', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(data).toString(),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to add dancer');
+    }
+    alert('Dancer added successfully!');
+  } catch (error) {
+    console.error('Error adding dancer:', error);
+  }
+});
+
+// Handle Search Dancer form submission
+document.getElementById('Search').addEventListener('submit', async (event) => {
+  event.preventDefault(); // Prevent the default form submission
+
+  const formData = new FormData(event.target);
+  const searchParams = new URLSearchParams(formData).toString();
+
+  try {
+    const response = await fetch(`/api/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: searchParams,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to search dancers');
+    }
+    const results = await response.json();
+    displaySearchResults(results);
+  } catch (error) {
+    console.error('Error searching dancers:', error);
+  }
+});
+
+// Display search results
+function displaySearchResults(results) {
+  const dancerList = document.getElementById('dancer-list');
+  dancerList.innerHTML = results.map(dancer => `
+    <li>
+      ${dancer.who} (${dancer.x}, ${dancer.y})
+      <button onclick="deleteDancer('${dancer.id}')">Delete</button>
+    </li>
+  `).join('');
+}
+
+// Delete a dancer
+async function deleteDancer(id) {
+  try {
+    const response = await fetch(`/api?id=${id}`, { method: 'DELETE' });
+    if (!response.ok) {
+      throw new Error('Failed to delete dancer');
+    }
+    fetchDancers(); // Refresh the list after deletion
+  } catch (error) {
+    console.error('Error deleting dancer:', error);
+  }
+}
+
+// Fetch and display all dancers
+async function fetchDancers() {
+  try {
+    const response = await fetch('/api');
+    if (!response.ok) {
+      throw new Error('Failed to fetch dancers');
+    }
+    const dancers = await response.json();
+    displaySearchResults(dancers);
+  } catch (error) {
+    console.error('Error fetching dancers:', error);
+  }
+}
+
+// Initial fetch of dancers
+fetchDancers();
