@@ -1,10 +1,10 @@
-// Handle Add Dancer form submission
+// Handle Add Item form submission
 document.getElementById('Add').addEventListener('submit', async (event) => {
   event.preventDefault(); // Prevent the default form submission
 
   const formData = new FormData(event.target);
   const data = {
-    who: formData.get('who'),
+    name: formData.get('name'),
     x: formData.get('x'),
     y: formData.get('y'),
   };
@@ -18,15 +18,15 @@ document.getElementById('Add').addEventListener('submit', async (event) => {
       body: new URLSearchParams(data).toString(),
     });
     if (!response.ok) {
-      throw new Error('Failed to add dancer');
+      throw new Error('Failed to add item');
     }
-    alert('Dancer added successfully!');
+    fetchItems(); //Refresh the list after insertion
   } catch (error) {
-    console.error('Error adding dancer:', error);
+    console.error('Error adding item:', error);
   }
 });
 
-// Handle Search Dancer form submission
+// Handle Search Item form submission
 document.getElementById('Search').addEventListener('submit', async (event) => {
   event.preventDefault(); // Prevent the default form submission
 
@@ -42,52 +42,52 @@ document.getElementById('Search').addEventListener('submit', async (event) => {
       body: searchParams,
     });
     if (!response.ok) {
-      throw new Error('Failed to search dancers');
+      throw new Error('Failed to search items');
     }
     const results = await response.json();
     displaySearchResults(results);
   } catch (error) {
-    console.error('Error searching dancers:', error);
+    console.error('Error searching items:', error);
   }
 });
 
 // Display search results
 function displaySearchResults(results) {
-  const dancerList = document.getElementById('dancer-list');
-  dancerList.innerHTML = results.map(dancer => `
+  const itemList = document.getElementById('item-list');
+  itemList.innerHTML = results.map(item => `
     <li>
-      ${dancer.who} (${dancer.x}, ${dancer.y})
-      <button onclick="deleteDancer('${dancer.id}')">Delete</button>
+      ${item.name} (${item.x}, ${item.y})
+      <button onclick="deleteItem('${item.id}')">Delete</button>
     </li>
   `).join('');
 }
 
-// Delete a dancer
-async function deleteDancer(id) {
+// Delete an item
+async function deleteItem(id) {
   try {
     const response = await fetch(`/api?id=${id}`, { method: 'DELETE' });
     if (!response.ok) {
-      throw new Error('Failed to delete dancer');
+      throw new Error('Failed to delete item');
     }
-    fetchDancers(); // Refresh the list after deletion
+    fetchItems(); // Refresh the list after deletion
   } catch (error) {
-    console.error('Error deleting dancer:', error);
+    console.error('Error deleting item:', error);
   }
 }
 
-// Fetch and display all dancers
-async function fetchDancers() {
+// Fetch and display all items
+async function fetchItems() {
   try {
     const response = await fetch('/api');
     if (!response.ok) {
-      throw new Error('Failed to fetch dancers');
+      throw new Error('Failed to fetch items');
     }
-    const dancers = await response.json();
-    displaySearchResults(dancers);
+    const items = await response.json();
+    displaySearchResults(items);
   } catch (error) {
-    console.error('Error fetching dancers:', error);
+    console.error('Error fetching items:', error);
   }
 }
 
-// Initial fetch of dancers
-fetchDancers();
+// Initial fetch of items
+fetchItems();

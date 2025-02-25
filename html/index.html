@@ -3,36 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dancer API</title>
+  <title>Item API</title>
 </head>
 <body>
-  <h1>Dancer API</h1>
+  <h1>Item API</h1>
 
-  <!-- Add Dancer Form -->
+  <!-- Add Item Form -->
   <form id="Add" action="/api" method="POST">
-    <label for="whoAdd">Who:</label>
-    <input name="who" id="whoAdd" required />
+    <label for="nameAdd">Item:</label>
+    <input name="name" id="nameAdd" required>
     <label for="xAdd">x:</label>
-    <input name="x" id="xAdd" required />
+    <input name="x" id="xAdd" required>
     <label for="yAdd">y:</label>
-    <input name="y" id="yAdd" required />
-    <input type="submit" value="Add Dancer" />
+    <input name="y" id="yAdd" required>
+    <input type="submit" value="Add Item">
   </form>
 
-  <!-- Search Dancer Form -->
+  <!-- Search Item Form -->
   <form id="Search" action="/api/search" method="POST">
-    <label for="whoSearch">Who:</label>
-    <input name="who" id="whoSearch" />
+    <label for="nameSearch">Item:</label>
+    <input name="name" id="nameSearch">
     <label for="xSearch">x:</label>
-    <input name="x" id="xSearch" />
+    <input name="x" id="xSearch">
     <label for="ySearch">y:</label>
-    <input name="y" id="ySearch" />
-    <input type="submit" value="Search Dancer" />
+    <input name="y" id="ySearch">
+    <input type="submit" value="Search Item">
   </form>
 
-  <!-- Display Dancers -->
-  <h2>Dancer List</h2>
-  <ul id="dancer-list"></ul>
+  <!-- Display Items -->
+  <h2>Item List</h2>
+  <ul id="item-list"></ul>
 
   <!-- External JavaScript -->
   <script src="script.js"></script>
