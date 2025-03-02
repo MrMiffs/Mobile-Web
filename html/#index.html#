@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GrocLog</title>
+  <title>Item API</title>
 </head>
 <body>
-  <h1>GrocLog</h1>
+  <h1>Item API</h1>
 
   <!-- Add Item Form -->
   <form id="Add" action="/api" method="POST">
@@ -31,7 +31,7 @@
   </form>
 
   <!-- Display Items -->
-  <h2>Purchase History</h2>
+  <h2>Item List</h2>
   <ul id="item-list"></ul>
 
   <!-- External JavaScript -->

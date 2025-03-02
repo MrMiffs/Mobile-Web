@@ -5,8 +5,8 @@ document.getElementById('Add').addEventListener('submit', async (event) => {
   const formData = new FormData(event.target);
   const data = {
     name: formData.get('name'),
-    price: formData.get('price'),
-    date: formData.get('date'),
+    x: formData.get('x'),
+    y: formData.get('y'),
   };
 
   try {
@@ -20,7 +20,7 @@ document.getElementById('Add').addEventListener('submit', async (event) => {
     if (!response.ok) {
       throw new Error('Failed to add item');
     }
-    fetchItems(); // Refresh the list after insertion
+    fetchItems(); //Refresh the list after insertion
   } catch (error) {
     console.error('Error adding item:', error);
   }
@@ -56,7 +56,7 @@ function displaySearchResults(results) {
   const itemList = document.getElementById('item-list');
   itemList.innerHTML = results.map(item => `
     <li>
-      ${item.name} (Price: $${item.price}, Date: ${item.date})
+      ${item.name} (${item.x}, ${item.y})
       <button onclick="deleteItem('${item.id}')">Delete</button>
     </li>
   `).join('');

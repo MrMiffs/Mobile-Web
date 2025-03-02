@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GrocLog</title>
+  <title>Item API</title>
 </head>
 <body>
-  <h1>GrocLog</h1>
+  <h1>Item API</h1>
 
   <!-- Add Item Form -->
   <form id="Add" action="/api" method="POST">
     <label for="nameAdd">Item:</label>
     <input name="name" id="nameAdd" required>
-    <label for="priceAdd">Price:</label>
-    <input name="price" id="priceAdd" required>
-    <label for="dateAdd">Date:</label>
-    <input name="date" id="dateAdd" type="date" required>
+    <label for="xAdd">x:</label>
+    <input name="x" id="xAdd" required>
+    <label for="yAdd">y:</label>
+    <input name="y" id="yAdd" required>
     <input type="submit" value="Add Item">
   </form>
 
@@ -23,15 +23,15 @@
   <form id="Search" action="/api/search" method="POST">
     <label for="nameSearch">Item:</label>
     <input name="name" id="nameSearch">
-    <label for="priceSearch">Price:</label>
-    <input name="price" id="priceSearch">
-    <label for="dateSearch">Date:</label>
-    <input name="date" id="dateSearch" type="date">
+    <label for="xSearch">x:</label>
+    <input name="x" id="xSearch">
+    <label for="ySearch">y:</label>
+    <input name="y" id="ySearch">
     <input type="submit" value="Search Item">
   </form>
 
   <!-- Display Items -->
-  <h2>Purchase History</h2>
+  <h2>Item List</h2>
   <ul id="item-list"></ul>
 
   <!-- External JavaScript -->
