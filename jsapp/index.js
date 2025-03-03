@@ -1,110 +1,77 @@
 #!/usr/bin/env node
 
-const http = require('http');
+const express = require('express');
+const mysql = require('mysql2');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-const items = [];
+const app = express();
+const port = 3000;
 
-const handleRequest = (req, res) => {
-  const [path, query] = req.url.split('?');
+app.use(cors());
+app.use(bodyParser.json());
 
-  if (path === '/api') {
-    if (req.method === 'POST') {
-      // Handle Add Item form submission
-      let body = '';
-      req.on('data', (data) => {
-        body += data;
-      });
-      req.on('end', () => {
-        try {
-          const params = Object.fromEntries(body.split('&').map(
-            (param) => param.split('=')
-          ));
-          if (!params.name || !params.price || !params.date) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "Missing required parameters" }));
-            return;
-          }
-          if (isNaN(parseFloat(params.price))) {
-            res.writeHead(400, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "Price must be a number" }));
-            return;
-          }
-          params.price = parseFloat(params.price); // Convert price to a number
-          params.id = Date.now().toString(); // Generate a unique ID
-          items.push(params);
-          res.writeHead(201, { "Content-Type": "application/json" });
-          res.end(JSON.stringify(params));
-        } catch (error) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Invalid request body" }));
-        }
-      });
-    } else if (req.method === 'GET') {
-      // Handle GET requests (return all items)
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify(items));
-    } else if (req.method === 'DELETE') {
-      // Handle DELETE requests
-      const id = query.split('=')[1]; // Extract the ID from the query string
-      const index = items.findIndex(item => item.id === id);
-      if (index !== -1) {
-        items.splice(index, 1); // Remove the item
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ message: "Item deleted" }));
-      } else {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Item not found" }));
-      }
-    } else {
-      res.writeHead(405, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Method not allowed" }));
-    }
-  } else if (path === '/api/search') {
-    if (req.method === 'POST') {
-      // Handle Search Item form submission
-      let body = '';
-      req.on('data', (data) => {
-        body += data;
-      });
-      req.on('end', () => {
-        try {
-          const params = Object.fromEntries(body.split('&').map(
-            (param) => param.split('=')
-          ));
+// MySQL Connection
+const db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'groclog'
+});
 
-          // Filter items based on search parameters
-          const searchResults = items.filter(item => {
-            return (
-              (!params.name || item.name === params.name) && // Match "name" if provided
-              (!params.price || item.price == params.price) && // Match "price" if provided
-              (!params.date || item.date === params.date) // Match "date" if provided
-            );
-          });
-
-          if (Object.keys(params).length > 0 && searchResults.length === 0) {
-            res.writeHead(404, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: "No matching items found" }));
-            return;
-          }
-
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify(searchResults));
-        } catch (error) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Invalid request body" }));
-        }
-      });
-    } else {
-      res.writeHead(405, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "Method not allowed" }));
-    }
-  } else {
-    res.writeHead(404, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Endpoint not found" }));
+db.connect(err => {
+  if (err) {
+    console.error('Database connection failed:', err);
+    return;
   }
-};
+  console.log('Connected to MySQL database');
+});
 
-const server = http.createServer(handleRequest);
-server.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
+// Add Item Route
+app.post('/api/add', (req, res) => {
+  const { user_id, item, price, purchase_date } = req.body;
+  if (!user_id || !item || !price || !purchase_date) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  const query = 'INSERT INTO itemlog (user_id, item, price, purchase_date) VALUES (?, ?, ?, ?)';
+  db.query(query, [user_id, item, price, purchase_date], (err, result) => {
+    if (err) {
+      console.error('Error inserting item:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json({ message: 'Item added successfully', id: result.insertId });
+  });
+});
+
+// Search Item Route
+app.post('/api/search', (req, res) => {
+  const { user_id, item, price, purchase_date } = req.body;
+  let query = 'SELECT * FROM itemlog WHERE user_id = ?';
+  let params = [user_id];
+
+  if (item) {
+    query += ' AND item LIKE ?';
+    params.push(`%${item}%`);
+  }
+  if (price) {
+    query += ' AND price = ?';
+    params.push(price);
+  }
+  if (purchase_date) {
+    query += ' AND purchase_date = ?';
+    params.push(purchase_date);
+  }
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('Error searching items:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
