@@ -8,11 +8,7 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 
-app.use(cors({
-  origin: 'https://isluc.mooo.com',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type']
-}));
+app.use(cors());
 app.use(bodyParser.json());
 
 // MySQL Connection
@@ -76,6 +72,60 @@ app.post('/api/search', (req, res) => {
   });
 });
 
+// Delete Item Route
+app.post('/api/delete', (req, res) => {
+  const { user_id, item, price, purchase_date } = req.body;
+  if (!user_id || !item || !price || !purchase_date) {
+    return res.status(400).json({ error: 'All fields are required for deletion' });
+  }
+
+  const query = 'DELETE FROM itemlog WHERE user_id = ? AND item = ? AND price = ? AND purchase_date = ?';
+  db.query(query, [user_id, item, price, formatDate(purchase_date)], (err, result) => {
+    if (err) {
+      console.error('Error deleting item:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'No matching item found' });
+    }
+    res.json({ message: 'Item deleted successfully' });
+  });
+});
+
+// Edit Item Route
+app.post('/api/edit', (req, res) => {
+  const { user_id, item, price, purchase_date, newItem, newPrice, newDate } = req.body;
+
+  if (!user_id || !item || !price || !purchase_date || !newItem || !newPrice || !newDate) {
+    return res.status(400).json({ error: 'All fields are required for editing' });
+  }
+
+  const query = `
+    UPDATE itemlog 
+    SET item = ?, price = ?, purchase_date = ? 
+    WHERE user_id = ? AND item = ? AND price = ? AND purchase_date = ?
+  `;
+
+  db.query(
+      query,
+      [newItem, newPrice, newDate, user_id, item, price, formatDate(purchase_date)],
+      (err, result) => {
+        if (err) {
+          console.error('Error updating item:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ error: 'No matching item found to update' });
+        }
+        res.json({ message: 'Item updated successfully' });
+      }
+  );
+});
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+
+function formatDate(dateString) {
+  return new Date(dateString).toISOString().split('T')[0]; //Extracts simple YYYY-MM-DD string
+}
