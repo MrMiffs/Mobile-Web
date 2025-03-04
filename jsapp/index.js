@@ -8,14 +8,18 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://isluc.mooo.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type']
+}));
 app.use(bodyParser.json());
 
 // MySQL Connection
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
+  host: '72.14.183.106',
+  user: 'dbmanager',
+  password: 'manager',
   database: 'groclog'
 });
 

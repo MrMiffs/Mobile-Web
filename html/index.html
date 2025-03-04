@@ -9,7 +9,7 @@
   <h1>GrocLog</h1>
 
   <!-- Add Item Form -->
-  <form id="Add" action="/api" method="POST">
+  <form id="Add">
     <label for="nameAdd">Item:</label>
     <input name="name" id="nameAdd" required>
     <label for="priceAdd">Price:</label>
@@ -20,7 +20,7 @@
   </form>
 
   <!-- Search Item Form -->
-  <form id="Search" action="/api/search" method="POST">
+  <form id="Search">
     <label for="nameSearch">Item:</label>
     <input name="name" id="nameSearch">
     <label for="priceSearch">Price:</label>
@@ -34,7 +34,6 @@
   <h2>Purchase History</h2>
   <ul id="item-list"></ul>
 
-  <!-- External JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>
