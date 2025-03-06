@@ -6,7 +6,7 @@ function formatDate(dateString) {
 
 // Function to load items from database
 async function loadItems() {
-    const response = await fetch("/api/search", {
+    const response = await fetch("/api/searchitem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId })
@@ -43,7 +43,7 @@ async function addItem(event) {
     const price = document.getElementById("priceAdd").value;
     const purchaseDate = document.getElementById("dateAdd").value;
 
-    const response = await fetch("/api/add", {
+    const response = await fetch("/api/additem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, item, price, purchase_date: purchaseDate })
@@ -56,7 +56,7 @@ async function addItem(event) {
 
 // Function to handle deleting an item
 async function deleteItem(entry) {
-    const response = await fetch("/api/delete", {
+    const response = await fetch("/api/deleteitem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(entry)
@@ -72,7 +72,7 @@ async function editItem(entry) {
     const newDate = prompt("Edit purchase date:", formatDate(entry.purchase_date));
 
     if (newItem && newPrice && newDate) {
-        const response = await fetch("/api/edit", {
+        const response = await fetch("/api/edititem", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -99,7 +99,7 @@ async function searchItems(event) {
     const price = document.getElementById("priceSearch").value;
     const purchaseDate = document.getElementById("dateSearch").value;
 
-    const response = await fetch("/api/search", {
+    const response = await fetch("/api/searchitem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, item, price, purchase_date: purchaseDate })
