@@ -6,9 +6,14 @@ const USDollar = new Intl.NumberFormat('en-US', {
     currency: 'USD',
 });
 
-
+// Returns date string in format (Short Month), dd, yy
 function formatDate(dateString) {
-    return new Date(dateString).toISOString().split('T')[0]; //Extracts simple YYYY-MM-DD string
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: '2-digit'
+    });
 }
 
 // Function to load items from database
@@ -143,3 +148,4 @@ loadItems();
 
 document.getElementById("Add").addEventListener("submit", addItem);
 document.getElementById("Search").addEventListener("submit", searchItems);
+document.getElementById("Search").addEventListener("reset", loadItems);
