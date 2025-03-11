@@ -6,14 +6,35 @@ const USDollar = new Intl.NumberFormat('en-US', {
     currency: 'USD',
 });
 
-// Returns date string in format (Short Month), dd, yy
+// Returns date string in format (Short Month), dd, yyyy
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
+        timeZone: 'UTC',
         month: 'short',
         day: '2-digit',
-        year: '2-digit'
+        year: 'numeric'
     });
+}
+
+function addButtons(li, entry) {
+    //Create Buttons
+    const buttonDiv = document.createElement("div");
+    buttonDiv.classList.add("button-container");
+    // Edit Button
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit";
+    editButton.onclick = () => editItem(entry);
+
+    // Delete Button
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.onclick = () => deleteItem(entry);
+
+    //Add Buttons to list item
+    buttonDiv.appendChild(editButton);
+    buttonDiv.appendChild(deleteButton);
+    li.appendChild(buttonDiv);
 }
 
 // Function to load items from database
@@ -32,18 +53,7 @@ async function loadItems() {
         const formattedDate = formatDate(entry.purchase_date);
         li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formattedDate}`;
 
-        // Edit Button
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.onclick = () => editItem(entry);
-
-        // Delete Button
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = () => deleteItem(entry);
-
-        li.appendChild(editButton);
-        li.appendChild(deleteButton);
+        addButtons(li, entry);
         itemList.appendChild(li);
     });
 
@@ -127,18 +137,7 @@ async function searchItems(event) {
         const li = document.createElement("li");
         li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formatDate(entry.purchase_date)}`;
 
-        // Edit Button
-        const editButton = document.createElement("button");
-        editButton.textContent = "Edit";
-        editButton.onclick = () => editItem(entry);
-
-        // Delete Button
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.onclick = () => deleteItem(entry);
-
-        li.appendChild(editButton);
-        li.appendChild(deleteButton);
+        addButtons(li, entry);
         itemList.appendChild(li);
     });
 }
