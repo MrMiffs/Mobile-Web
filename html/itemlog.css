@@ -3,12 +3,13 @@ h1 {
     background: #06b2d0;
     color: white;
     text-align: center;
-    padding: 20px;
+    padding-top: 20px;
+    padding-bottom: 20px;
     font-size: 2em;
     font-weight: bold;
     border-radius: 10px;
-    width: 95%;
-    margin: 20px auto;
+    width: 100%;
+    /*margin: 20px auto;*/
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
