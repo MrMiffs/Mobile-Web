@@ -4,9 +4,6 @@ const db = require('./db');
 
 console.log("Accessing itemlog.js...");
 
-function formatDate(dateString) {
-    return new Date(dateString).toISOString().split('T')[0]; //Extracts simple YYYY-MM-DD string
-}
 
 // Takes info from req and returns a message in res
 function addItem(req, res) {
@@ -61,7 +58,7 @@ function deleteItem(req, res) {
     }
 
     const query = 'DELETE FROM itemlog WHERE user_id = ? AND item = ? AND price = ? AND purchase_date = ?';
-    db.query(query, [user_id, item, price, formatDate(purchase_date)], (err, result) => {
+    db.query(query, [user_id, item, price, purchase_date], (err, result) => {
         if (err) {
             console.error('Error deleting item:', err);
             return res.status(500).json({ error: 'Database error' });
@@ -89,7 +86,7 @@ function editItem(req, res) {
 
     db.query(
         query,
-        [newItem, newPrice, newDate, user_id, item, price, formatDate(purchase_date)],
+        [newItem, newPrice, newDate, user_id, item, price, purchase_date],
         (err, result) => {
             if (err) {
                 console.error('Error updating item:', err);
