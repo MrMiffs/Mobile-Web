@@ -6,15 +6,22 @@ const USDollar = new Intl.NumberFormat('en-US', {
     currency: 'USD',
 });
 
-// Returns date string in format (Short Month), dd, yyyy
-function formatDate(dateString) {
+// Returns formatted date string:
+// Default (forHuman == false): YYYY-MM-DD
+// forHumann == true: (Short Month), dd, yyyy
+function formatDate(dateString, forHuman = false) {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        timeZone: 'UTC',
-        month: 'short',
-        day: '2-digit',
-        year: 'numeric'
-    });
+    let dateStr = date.toISOString().split('T')[0]; //Extracts simple YYYY-MM-DD string
+    if (forHuman) {
+        dateStr = date.toLocaleDateString('en-US', {
+            timeZone: 'UTC',
+            month: 'short',
+            day: '2-digit',
+            year: 'numeric'
+        });
+    }
+
+    return dateStr;
 }
 
 function addButtons(li, entry) {
@@ -50,7 +57,7 @@ async function loadItems() {
     results.forEach(entry => {
         totalSpendValue += parseFloat(entry.price);
         const li = document.createElement("li");
-        const formattedDate = formatDate(entry.purchase_date);
+        const formattedDate = formatDate(entry.purchase_date, true);
         li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formattedDate}`;
 
         addButtons(li, entry);
@@ -68,25 +75,23 @@ async function addItem(event) {
     const price = document.getElementById("priceAdd").value;
     const purchaseDate = document.getElementById("dateAdd").value;
 
-    const response = await fetch("/api/additem", {
+    await fetch("/api/additem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, item, price, purchase_date: purchaseDate })
     });
 
-    const result = await response.json();
     // Reload items after adding
     loadItems();
 }
 
 // Function to handle deleting an item
 async function deleteItem(entry) {
-    const response = await fetch("/api/deleteitem", {
+    await fetch("/api/deleteitem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(entry)
     });
-    const result = await response.json();
     loadItems();
 }
 
@@ -94,10 +99,10 @@ async function deleteItem(entry) {
 async function editItem(entry) {
     const newItem = prompt("Edit item name:", entry.item);
     const newPrice = prompt("Edit item price:", entry.price);
-    const newDate = prompt("Edit purchase date:", formatDate(entry.purchase_date));
+    const newDate = Date.parse(prompt("Edit purchase date:", formatDate(entry.purchase_date, true)));
 
     if (newItem && newPrice && newDate) {
-        const response = await fetch("/api/edititem", {
+        await fetch("/api/edititem", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -107,11 +112,10 @@ async function editItem(entry) {
                 purchase_date: formatDate(entry.purchase_date), // Original date
                 newItem, // New item name
                 newPrice, // New price
-                newDate, // New date
+                newDate: formatDate(newDate), // New date
             }),
         });
 
-        const result = await response.json();
         loadItems(); // Refresh the list after editing
     }
 }
@@ -135,7 +139,7 @@ async function searchItems(event) {
 
     results.forEach(entry => {
         const li = document.createElement("li");
-        li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formatDate(entry.purchase_date)}`;
+        li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formatDate(entry.purchase_date, true)}`;
 
         addButtons(li, entry);
         itemList.appendChild(li);
