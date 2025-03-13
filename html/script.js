@@ -8,7 +8,7 @@ const USDollar = new Intl.NumberFormat('en-US', {
 
 // Returns formatted date string:
 // Default (forHuman == false): YYYY-MM-DD
-// forHumann == true: (Short Month), dd, yyyy
+// forHuman == true: (Short Month), dd, yyyy
 function formatDate(dateString, forHuman = false) {
     const date = new Date(dateString);
     let dateStr = date.toISOString().split('T')[0]; //Extracts simple YYYY-MM-DD string
@@ -82,7 +82,7 @@ async function addItem(event) {
     });
 
     // Reload items after adding
-    loadItems();
+    await loadItems();
 }
 
 // Function to handle deleting an item
@@ -92,7 +92,7 @@ async function deleteItem(entry) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(entry)
     });
-    loadItems();
+    await loadItems();
 }
 
 // Function to handle editing an item
@@ -116,7 +116,7 @@ async function editItem(entry) {
             }),
         });
 
-        loadItems(); // Refresh the list after editing
+        await loadItems(); // Refresh the list after editing
     }
 }
 
@@ -147,7 +147,7 @@ async function searchItems(event) {
 }
 
 // Load items initially
-loadItems();
+await loadItems();
 
 document.getElementById("Add").addEventListener("submit", addItem);
 document.getElementById("Search").addEventListener("submit", searchItems);
