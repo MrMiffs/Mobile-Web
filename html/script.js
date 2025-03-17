@@ -147,7 +147,7 @@ async function searchItems(event) {
 }
 
 // Load items initially
-await loadItems();
+loadItems();
 
 document.getElementById("Add").addEventListener("submit", addItem);
 document.getElementById("Search").addEventListener("submit", searchItems);
