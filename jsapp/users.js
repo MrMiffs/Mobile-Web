@@ -1,31 +1,42 @@
-//Functions needed to access and manage users  table in MySQL database
-
 const db = require('./db');
 
-console.log('Accessing users.js...');
+const users = [
+    { username: 'admin', password: 'adminpass', role: 'admin' },
+    { username: 'author', password: 'authorpass', role: 'author' }
+];
 
-//Stores json version of SQL query results in res
+function authenticate(username, password) {
+    const user = users.find(u => u.username === username && u.password === password);
+    return !!user;
+}
+
+function getUser(username) {
+    return users.find(u => u.username === username);
+}
+
 function getUsers(req, res) {
     const query = 'SELECT * FROM users';
-
-    db.query(query, params, (err, results) => {
+    db.query(query, (err, results) => {
         if (err) {
-            console.error('Error searching items:', err);
+            console.error('Error fetching users:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         res.json(results);
     });
 }
 
-// Takes info from req and returns a message in res
 function addUser(req, res) {
-    const { username, password } = req.body;
-    if (!username || !password) {
+    const { username, password, role } = req.body;
+    if (!username || !password || !role) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    const query = 'INSERT INTO users (username, password) VALUES (?, ?)';
-    db.query(query, [username, password], (err, result) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Only admin can create new users' });
+    }
+
+    const query = 'INSERT INTO users (username, password, role) VALUES (?, ?, ?)';
+    db.query(query, [username, password, role], (err, result) => {
         if (err) {
             console.error('Error inserting user:', err);
             return res.status(500).json({ error: 'Database error' });
@@ -35,6 +46,8 @@ function addUser(req, res) {
 }
 
 module.exports = {
+    authenticate,
+    getUser,
     getUsers,
     addUser,
-}
+};
