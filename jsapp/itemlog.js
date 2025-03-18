@@ -24,7 +24,7 @@ function addItem(req, res) {
 
 // Takes info from req and returns a json of SLQ query results
 function searchItems(req, res) {
-    const { user_id, item, price, purchase_date } = req.query;
+    const { user_id, item, price, purchase_date } = req.body;
     let query = 'SELECT * FROM itemlog WHERE user_id = ?';
     let params = [user_id];
 

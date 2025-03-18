@@ -1,16 +1,10 @@
-const userId = 1; // Example user id, replace with dynamic solution from user accounts
+const userId = 1; //Example user id, replace with dynamic solution from user accounts
 const itemList = document.getElementById('item-list');
 const totalSpend = document.getElementById('total-spend');
 const USDollar = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
 });
-
-// Defines the required login for author access
-const auth = {
-    username: 'author',
-    password: 'authorpass'
-};
 
 // Returns formatted date string:
 // Default (forHuman == false): YYYY-MM-DD
@@ -52,12 +46,10 @@ function addButtons(li, entry) {
 
 // Function to load items from database
 async function loadItems() {
-    const response = await fetch("/api/searchitem?user_id=" + userId, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Basic " + btoa(auth.username + ":" + auth.password)
-        }
+    const response = await fetch("/api/searchitem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId })
     });
     const results = await response.json();
     itemList.innerHTML = "";
@@ -85,10 +77,7 @@ async function addItem(event) {
 
     await fetch("/api/additem", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Basic " + btoa(auth.username + ":" + auth.password)
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, item, price, purchase_date: purchaseDate })
     });
 
@@ -99,17 +88,9 @@ async function addItem(event) {
 // Function to handle deleting an item
 async function deleteItem(entry) {
     await fetch("/api/deleteitem", {
-        method: "DELETE",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Basic " + btoa(auth.username + ":" + auth.password)
-        },
-        body: JSON.stringify({
-            user_id: entry.user_id,
-            item: entry.item, // Original item name
-            price: entry.price, // Original price
-            purchase_date: formatDate(entry.purchase_date),
-        }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entry)
     });
     await loadItems();
 }
@@ -122,11 +103,8 @@ async function editItem(entry) {
 
     if (newItem && newPrice && newDate) {
         await fetch("/api/edititem", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Basic " + btoa(auth.username + ":" + auth.password)
-            },
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 user_id: entry.user_id,
                 item: entry.item, // Original item name
@@ -150,30 +128,22 @@ async function searchItems(event) {
     const price = document.getElementById("priceSearch").value;
     const purchaseDate = document.getElementById("dateSearch").value;
 
-    const response = await fetch(`/api/searchitem?user_id=${userId}&item=${item}&price=${price}&purchase_date=${purchaseDate}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
+    const response = await fetch("/api/searchitem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, item, price, purchase_date: purchaseDate })
     });
-
-    if (!response.ok) {
-        console.error("Failed to fetch items:", response.statusText);
-        return;
-    }
 
     const results = await response.json();
     itemList.innerHTML = "";
-    let totalSpendValue = 0;
 
     results.forEach(entry => {
-        totalSpendValue += parseFloat(entry.price);
         const li = document.createElement("li");
-        const formattedDate = formatDate(entry.purchase_date, true);
-        li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formattedDate}`;
+        li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formatDate(entry.purchase_date, true)}`;
+
         addButtons(li, entry);
         itemList.appendChild(li);
     });
-
-    totalSpend.textContent = `${USDollar.format(totalSpendValue)}`;
 }
 
 // Load items initially
