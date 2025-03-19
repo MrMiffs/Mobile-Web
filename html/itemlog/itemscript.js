@@ -1,4 +1,3 @@
-const userId = 1; //Example user id, replace with dynamic solution from user accounts
 const itemList = document.getElementById('item-list');
 const totalSpend = document.getElementById('total-spend');
 const USDollar = new Intl.NumberFormat('en-US', {
@@ -44,6 +43,27 @@ function addButtons(li, entry) {
     li.appendChild(buttonDiv);
 }
 
+async function getUserId(){
+    let data = JSON.stringify({user: sessionStorage.getItem('user'), pw: sessionStorage.getItem('pw')})
+    //console.log("data to fetch: ",data)
+    return fetch("/api/getID", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: data
+    })
+    .then(response => response.json())
+    .then(data => {
+        //console.log("return data: ",data)
+        return data.id;
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        return -1;
+    });
+}
+
 // Function to load items from database
 async function loadItems() {
     const response = await fetch("/api/searchitem", {
@@ -82,17 +102,22 @@ async function addItem(event) {
     });
 
     // Reload items after adding
-    await loadItems();
+    loadItems();
 }
 
 // Function to handle deleting an item
 async function deleteItem(entry) {
     await fetch("/api/deleteitem", {
-        method: "POST",
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(entry)
+        body: JSON.stringify({
+            user_id: userId,
+            item: entry.item,
+            price: entry.price,
+            purchase_date: formatDate(entry.purchase_date), // Original date format
+        })
     });
-    await loadItems();
+    loadItems();
 }
 
 // Function to handle editing an item
@@ -103,10 +128,10 @@ async function editItem(entry) {
 
     if (newItem && newPrice && newDate) {
         await fetch("/api/edititem", {
-            method: "POST",
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                user_id: entry.user_id,
+                user_id: userId,
                 item: entry.item, // Original item name
                 price: entry.price, // Original price
                 purchase_date: formatDate(entry.purchase_date), // Original date
@@ -116,7 +141,7 @@ async function editItem(entry) {
             }),
         });
 
-        await loadItems(); // Refresh the list after editing
+        loadItems(); // Refresh the list after editing
     }
 }
 
@@ -146,8 +171,18 @@ async function searchItems(event) {
     });
 }
 
-// Load items initially
-loadItems();
+document.addEventListener("DOMContentLoaded", async function () {
+    userId = await getUserId();
+    console.log("id returned:", userId);
+
+    if (userId === undefined || userId === -1 || userId === 0) {
+        console.error("Invalid user ID, skipping item loading.");
+        window.location.href = '/';
+    }
+    else {
+        loadItems(userId);
+    }
+});
 
 document.getElementById("Add").addEventListener("submit", addItem);
 document.getElementById("Search").addEventListener("submit", searchItems);

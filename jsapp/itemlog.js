@@ -4,7 +4,6 @@ const db = require('./db');
 
 console.log("Accessing itemlog.js...");
 
-
 // Takes info from req and returns a message in res
 function addItem(req, res) {
     const { user_id, item, price, purchase_date } = req.body;
@@ -79,10 +78,10 @@ function editItem(req, res) {
     }
 
     const query = `
-    UPDATE itemlog 
-    SET item = ?, price = ?, purchase_date = ? 
-    WHERE user_id = ? AND item = ? AND price = ? AND purchase_date = ?
-  `;
+        UPDATE itemlog
+        SET item = ?, price = ?, purchase_date = ?
+        WHERE user_id = ? AND item = ? AND price = ? AND purchase_date = ?
+    `;
 
     db.query(
         query,
