@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GrocLog</title>
   <link rel="stylesheet" href="../sitestyle.css">
+  <!-- Flatpickr CSS (Calendar) -->
+  <link rel="stylesheet" href="flatpickr.css">
 </head>
 <body>
 <h1>GrocLog</h1>
@@ -44,6 +46,15 @@
   <input type="reset" value="Reset">
 </form>
 
+<!-- Date Filter Form -->
+<h2>Filter Items by Date</h2>
+<form id="FilterDates" class="item-form">
+  <section class="form-piece">
+    <label for="dateRange">Date Range: </label>
+    <input name="dateRange" id="dateRange" type="date">
+  </section>
+</form>
+
 <!-- Display Items -->
 <h2>Total Spend</h2>
 <p id="total-spend">$0</p>
@@ -51,5 +62,29 @@
 <ul id="item-list"></ul>
 
 <script src="itemscript.js"></script>
+<!-- Flatpickr JS -->
+<script src="flatpickr.js"></script>
+<script>
+  // Initialize Flatpickr on date fields
+  flatpickr("#dateAdd", {
+    altInput: true,
+    altFormat: "F j, Y",
+    dateFormat: "Y-m-d",
+  });
+
+  flatpickr("#dateSearch", {
+    altInput: true,
+    altFormat: "F j, Y",
+    dateFormat: "Y-m-d",
+  });
+
+  flatpickr("#dateRange", {
+    altInput: true,
+    altFormat: "F j, Y",
+    dateFormat: "Y-m-d",
+    mode: "range"
+  });
+</script>
+
 </body>
 </html>
