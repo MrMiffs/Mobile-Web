@@ -72,6 +72,48 @@ async function getUserId(){
     });
 }
 
+function addListItem(list, entry) {
+    const li = document.createElement("li");
+    const formattedDate = formatDate(entry.purchase_date, true);
+
+    // Create item display text
+    const itemText = document.createElement("div");
+    itemText.classList.add("item-display");
+
+    // Bold the item name
+    const itemName = document.createElement("strong");
+    itemName.textContent = entry.item;
+    itemText.appendChild(itemName);
+
+    // Add price and date (not bold)
+    itemText.append(` - ${USDollar.format(entry.price)} on ${formattedDate} `);
+
+    // Add Location if available
+    if (entry.location) {
+        const locationSpan = document.createElement("span");
+        locationSpan.innerHTML = `<strong>Location:</strong> ${entry.location} `;
+        itemText.appendChild(locationSpan);
+    }
+
+    // Add Brand if available
+    if (entry.brand) {
+        const brandSpan = document.createElement("span");
+        brandSpan.innerHTML = `<strong>Brand:</strong> ${entry.brand} `;
+        itemText.appendChild(brandSpan);
+    }
+
+    // Add Type if available
+    if (entry.type) {
+        const typeSpan = document.createElement("span");
+        typeSpan.innerHTML = `<strong>Type:</strong> ${entry.type} `;
+        itemText.appendChild(typeSpan);
+    }
+
+    li.appendChild(itemText);
+    addButtons(li, entry);
+    list.appendChild(li);
+}
+
 async function loadItems() {
     const response = await fetch("/api/searchitem", {
         method: "POST",
@@ -84,45 +126,7 @@ async function loadItems() {
 
     results.forEach(entry => {
         totalSpendValue += parseFloat(entry.price);
-        const li = document.createElement("li");
-        const formattedDate = formatDate(entry.purchase_date, true);
-
-        // Create item display text
-        const itemText = document.createElement("div");
-        itemText.classList.add("item-display");
-
-        // Bold the item name
-        const itemName = document.createElement("strong");
-        itemName.textContent = entry.item;
-        itemText.appendChild(itemName);
-
-        // Add price and date (not bold)
-        itemText.append(` - ${USDollar.format(entry.price)} on ${formattedDate} `);
-
-        // Add Location if available
-        if (entry.location) {
-            const locationSpan = document.createElement("span");
-            locationSpan.innerHTML = `<strong>Location:</strong> ${entry.location} `;
-            itemText.appendChild(locationSpan);
-        }
-
-        // Add Brand if available
-        if (entry.brand) {
-            const brandSpan = document.createElement("span");
-            brandSpan.innerHTML = `<strong>Brand:</strong> ${entry.brand} `;
-            itemText.appendChild(brandSpan);
-        }
-
-        // Add Type if available
-        if (entry.type) {
-            const typeSpan = document.createElement("span");
-            typeSpan.innerHTML = `<strong>Type:</strong> ${entry.type} `;
-            itemText.appendChild(typeSpan);
-        }
-
-        li.appendChild(itemText);
-        addButtons(li, entry);
-        itemList.appendChild(li);
+        addListItem(itemList, entry);
     });
 
     totalSpend.textContent = `${USDollar.format(totalSpendValue)}`;
@@ -289,10 +293,7 @@ async function searchItems(event) {
 
     results.forEach(entry => {
         filteredSpendValue += parseFloat(entry.price);
-        const li = document.createElement("li");
-        li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formatDate(entry.purchase_date, true)}`;
-        addButtons(li, entry);
-        itemList.appendChild(li);
+        addListItem(itemList, entry);
     });
 
     filteredSpend.textContent = `${USDollar.format(filteredSpendValue)}`;
