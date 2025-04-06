@@ -54,6 +54,41 @@ li .button-container {
     align-items: center;
 }
 
+/* Item display styling */
+.item-display {
+    line-height: 1.4;
+    padding: 8px 0;
+}
+
+.item-display strong {
+    font-weight: bold;
+}
+
+/* Remove bullet points from additional info */
+.item-display span::before {
+    content: none;
+}
+
+/* Edit form styles */
+.edit-form {
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+}
+
+.edit-form label {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    align-items: center;
+    gap: 10px;
+}
+
+.edit-form input {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 /* Dropdown styles */
 .dropdown {
     position: relative;

@@ -25,6 +25,54 @@
     <label for="dateAdd">Date:</label>
     <input name="date" id="dateAdd" type="date" required>
   </div>
+  <div class="form-piece">
+    <label for="locationAdd">Location:</label>
+    <input type="text" name="location" id="locationAdd" list="locationOptions">
+    <datalist id="locationOptions">
+      <option value="Walmart">
+      <option value="King Soopers">
+      <option value="Target">
+      <option value="Costco">
+      <option value="Trader Joe's">
+      <option value="Whole Foods">
+      <option value="Safeway">
+      <option value="Amazon">
+    </datalist>
+  </div>
+  <div class="form-piece">
+    <label for="brandAdd">Brand:</label>
+    <input type="text" name="brand" id="brandAdd" list="brandOptions">
+    <datalist id="brandOptions">
+      <option value="Lays">
+      <option value="Kraft">
+      <option value="Nestle">
+      <option value="General Mills">
+      <option value="Kellogg's">
+      <option value="PepsiCo">
+      <option value="Coca-Cola">
+      <option value="Procter & Gamble">
+      <option value="Unilever">
+    </datalist>
+  </div>
+  <div class="form-piece">
+    <label for="typeAdd">Type:</label>
+    <input type="text" name="type" id="typeAdd" list="typeOptions">
+    <datalist id="typeOptions">
+      <option value="Grocery">
+      <option value="Produce">
+      <option value="Dairy">
+      <option value="Meat">
+      <option value="Frozen">
+      <option value="Bakery">
+      <option value="Beverages">
+      <option value="Snacks">
+      <option value="Beauty">
+      <option value="Cleaning">
+      <option value="Home Tools">
+      <option value="Pets">
+      <option value="Baby">
+    </datalist>
+  </div>
   <input type="submit" value="Add Item">
 </form>
 
@@ -55,6 +103,18 @@
       </div>
     </div>
   </div>
+  <div class="form-piece">
+    <label for="locationSearch">Location:</label>
+    <input type="text" name="location" id="locationSearch" list="locationOptions">
+  </div>
+  <div class="form-piece">
+    <label for="brandSearch">Brand:</label>
+    <input type="text" name="brand" id="brandSearch" list="brandOptions">
+  </div>
+  <div class="form-piece">
+    <label for="typeSearch">Type:</label>
+    <input type="text" name="type" id="typeSearch" list="typeOptions">
+  </div>
   <input type="submit" value="Search Item">
   <input type="reset" value="Reset">
 </form>
@@ -70,7 +130,9 @@
 <ul id="item-list"></ul>
 
 <script src="itemscript.js"></script>
-<!-- Flatpickr JS -->
+<!-- Sweetalert2 JS (Edit Form) -->
+<script src="sweetalert2.js"></script>
+<!-- Flatpickr JS (Calendars)-->
 <script src="flatpickr.js"></script>
 <script>
   // Initialize Flatpickr on date fields

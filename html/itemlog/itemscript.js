@@ -72,7 +72,6 @@ async function getUserId(){
     });
 }
 
-// Function to load items from database
 async function loadItems() {
     const response = await fetch("/api/searchitem", {
         method: "POST",
@@ -82,12 +81,46 @@ async function loadItems() {
     const results = await response.json();
     itemList.innerHTML = "";
     let totalSpendValue = 0;
+
     results.forEach(entry => {
         totalSpendValue += parseFloat(entry.price);
         const li = document.createElement("li");
         const formattedDate = formatDate(entry.purchase_date, true);
-        li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formattedDate}`;
 
+        // Create item display text
+        const itemText = document.createElement("div");
+        itemText.classList.add("item-display");
+
+        // Bold the item name
+        const itemName = document.createElement("strong");
+        itemName.textContent = entry.item;
+        itemText.appendChild(itemName);
+
+        // Add price and date (not bold)
+        itemText.append(` - ${USDollar.format(entry.price)} on ${formattedDate} `);
+
+        // Add Location if available
+        if (entry.location) {
+            const locationSpan = document.createElement("span");
+            locationSpan.innerHTML = `<strong>Location:</strong> ${entry.location} `;
+            itemText.appendChild(locationSpan);
+        }
+
+        // Add Brand if available
+        if (entry.brand) {
+            const brandSpan = document.createElement("span");
+            brandSpan.innerHTML = `<strong>Brand:</strong> ${entry.brand} `;
+            itemText.appendChild(brandSpan);
+        }
+
+        // Add Type if available
+        if (entry.type) {
+            const typeSpan = document.createElement("span");
+            typeSpan.innerHTML = `<strong>Type:</strong> ${entry.type} `;
+            itemText.appendChild(typeSpan);
+        }
+
+        li.appendChild(itemText);
         addButtons(li, entry);
         itemList.appendChild(li);
     });
@@ -102,16 +135,27 @@ async function addItem(event) {
     const item = document.getElementById("nameAdd").value;
     const price = document.getElementById("priceAdd").value;
     const purchaseDate = document.getElementById("dateAdd").value;
+    const location = document.getElementById("locationAdd").value.trim();
+    const brand = document.getElementById("brandAdd").value.trim();
+    const type = document.getElementById("typeAdd").value.trim();
 
     await fetch("/api/additem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, item, price, purchase_date: purchaseDate })
+        body: JSON.stringify({
+            user_id: userId,
+            item,
+            price,
+            purchase_date: purchaseDate,
+            location,
+            brand,
+            type
+        })
     });
 
-    // Reload items after adding
     loadItems();
 }
+
 
 // Function to handle deleting an item
 async function deleteItem(entry) {
@@ -130,26 +174,61 @@ async function deleteItem(entry) {
 
 // Function to handle editing an item
 async function editItem(entry) {
-    const newItem = prompt("Edit item name:", entry.item);
-    const newPrice = prompt("Edit item price:", entry.price);
-    const newDate = Date.parse(prompt("Edit purchase date:", formatDate(entry.purchase_date, true)));
+    // Create edit form HTML
+    const editForm = `
+        <div class="edit-form">
+            <label>Item Name: <input type="text" id="editItemName" value="${entry.item}"></label>
+            <label>Price: <input type="number" step="0.01" id="editItemPrice" value="${entry.price}"></label>
+            <label>Date: <input type="date" id="editItemDate" value="${formatDate(entry.purchase_date)}"></label>
+            <label>Location: <input type="text" id="editItemLocation" list="locationOptions" value="${entry.location || ''}"></label>
+            <label>Brand: <input type="text" id="editItemBrand" list="brandOptions" value="${entry.brand || ''}"></label>
+            <label>Type: <input type="text" id="editItemType" list="typeOptions" value="${entry.type || ''}"></label>
+        </div>
+    `;
 
-    if (newItem && newPrice && newDate) {
-        await fetch("/api/edititem", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                user_id: userId,
-                item: entry.item, // Original item name
-                price: entry.price, // Original price
-                purchase_date: formatDate(entry.purchase_date), // Original date
-                newItem, // New item name
-                newPrice, // New price
-                newDate: formatDate(newDate), // New date
-            }),
-        });
+    // Show edit dialog
+    const confirmed = await Swal.fire({
+        title: 'Edit Item',
+        html: editForm,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        focusConfirm: false,
+        preConfirm: () => {
+            return {
+                item: document.getElementById('editItemName').value,
+                price: document.getElementById('editItemPrice').value,
+                date: document.getElementById('editItemDate').value,
+                location: document.getElementById('editItemLocation').value,
+                brand: document.getElementById('editItemBrand').value,
+                type: document.getElementById('editItemType').value
+            };
+        }
+    });
 
-        loadItems(); // Refresh the list after editing
+    if (confirmed.isConfirmed) {
+        const { item, price, date, location, brand, type } = confirmed.value;
+
+        if (item && price && date) {
+            await fetch("/api/edititem", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_id: entry.user_id,
+                    item: entry.item,
+                    price: entry.price,
+                    purchase_date: formatDate(entry.purchase_date),
+                    newItem: item,
+                    newPrice: price,
+                    newDate: date,
+                    newLocation: location || null,
+                    newBrand: brand || null,
+                    newType: type || null
+                }),
+            });
+
+            loadItems(); // Refresh the list after editing
+        }
     }
 }
 
@@ -161,12 +240,17 @@ async function searchItems(event) {
     const price = document.getElementById("priceSearch").value;
     const dateSearchValue = document.getElementById("dateSearch").value;
     const dateRangeValue = document.getElementById("dateRange").value;
+    const location = document.getElementById("locationSearch").value.trim();
+    const brand = document.getElementById("brandSearch").value.trim();
+    const type = document.getElementById("typeSearch").value.trim();
 
-    // Prepare search parameters
     const searchParams = {
         user_id: userId,
         item,
-        price
+        price,
+        location,
+        brand,
+        type
     };
 
     // Add date filter based on which checkbox is checked
