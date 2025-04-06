@@ -40,29 +40,23 @@
   </div>
   <div class="form-piece">
     <div class="dropdown">
-      <div class="dropdown-content">
-        <input type="checkbox" id="dateSearchAt">
-        <label for="dateSearch">Date:</label>
-        <input name="date" id="dateSearch" type="date">
-      </div>
-      <div class="dropdown-content">
-        <input type="checkbox" id="dateSearchRange">
-        <label for="dateRange">Date Range: </label>
-        <input name="dateRange" id="dateRange" type="date">
+      <button type="button" class="dropbtn" id="dateDropdownBtn">Date</button>
+      <div class="dropdown-content" id="dateDropdown">
+        <label>
+          <input type="checkbox" id="atDateCheckbox">
+          At Date:
+          <input name="date" id="dateSearch" type="text">
+        </label>
+        <label>
+          <input type="checkbox" id="rangeDateCheckbox">
+          Between Dates:
+          <input name="dateRange" id="dateRange" type="text">
+        </label>
       </div>
     </div>
-
   </div>
   <input type="submit" value="Search Item">
   <input type="reset" value="Reset">
-</form>
-
-<!-- Date Filter Form -->
-<h2>Filter Items by Date</h2>
-<form id="FilterDates" class="item-form">
-  <section class="form-piece">
-
-  </section>
 </form>
 
 <!-- Display Items -->

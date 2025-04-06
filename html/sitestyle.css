@@ -54,20 +54,46 @@ li .button-container {
     align-items: center;
 }
 
-/* Formatting for dropdown <div> */
+/* Dropdown styles */
 .dropdown {
     position: relative;
     display: inline-block;
+}
+
+.dropbtn {
+    background-color: #06b2d0;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
     background-color: #f9f9f9;
-    min-width: 160px;
+    min-width: 200px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
     z-index: 1;
+    padding: 12px;
+    border-radius: 4px;
 }
 
-.dropdown:hover .dropdown-content {display: block;}
+.dropdown-content.show {
+    display: block;
+}
 
-.dropdown-content:hover {background-color: #ddd;}
+.dropdown-content label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+}
+
+.dropdown-content input[type="date"] {
+    width: 100%;
+    padding: 6px;
+    margin: 4px 0 12px 0;
+    box-sizing: border-box;
+}

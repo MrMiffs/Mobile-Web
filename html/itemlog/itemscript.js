@@ -4,6 +4,13 @@ const USDollar = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
 });
+const dateDropdownBtn = document.getElementById("dateDropdownBtn");
+const dateDropdown = document.getElementById("dateDropdown");
+const atDateCheckbox = document.getElementById("atDateCheckbox");
+const rangeDateCheckbox = document.getElementById("rangeDateCheckbox");
+const dateSearch = document.getElementById("dateSearch");
+const dateRange = document.getElementById("dateRange");
+
 
 // Returns formatted date string:
 // Default (forHuman == false): YYYY-MM-DD
@@ -151,24 +158,69 @@ async function searchItems(event) {
 
     const item = document.getElementById("nameSearch").value;
     const price = document.getElementById("priceSearch").value;
-    const purchaseDate = document.getElementById("dateSearch").value;
+    const dateSearchValue = document.getElementById("dateSearch").value;
+    const dateRangeValue = document.getElementById("dateRange").value;
+
+    // Prepare search parameters
+    const searchParams = {
+        user_id: userId,
+        item,
+        price
+    };
+
+    // Add date filter based on which checkbox is checked
+    if (atDateCheckbox.checked) {
+        if(!dateSearchValue) {
+            alert("Please select a date for 'At Date' filter");
+            return;
+        }
+        else {
+            searchParams.purchase_date = dateSearchValue;
+        }
+    }
+    else if (rangeDateCheckbox.checked) {
+        if (!dateRangeValue) {
+            alert("Please select a date range for 'Between Dates' filter");
+            return;
+        }
+        else {
+            const dates = dateRangeValue.split(" to ");
+            if (dates.length === 2) {
+                searchParams.start_date = dates[0];
+                searchParams.end_date = dates[1];
+            }
+        }
+    }
 
     const response = await fetch("/api/searchitem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, item, price, purchase_date: purchaseDate })
+        body: JSON.stringify(searchParams)
     });
 
     const results = await response.json();
     itemList.innerHTML = "";
+    let totalSpendValue = 0;
 
     results.forEach(entry => {
+        totalSpendValue += parseFloat(entry.price);
         const li = document.createElement("li");
         li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formatDate(entry.purchase_date, true)}`;
-
         addButtons(li, entry);
         itemList.appendChild(li);
     });
+
+    totalSpend.textContent = `${USDollar.format(totalSpendValue)}`;
+}
+
+function activateAtDate() {
+    atDateCheckbox.checked = true;
+    rangeDateCheckbox.checked = false;
+}
+
+function activateRangeDate() {
+    rangeDateCheckbox.checked = true;
+    atDateCheckbox.checked = false;
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -184,6 +236,41 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 });
 
+// Connect form buttons
 document.getElementById("Add").addEventListener("submit", addItem);
 document.getElementById("Search").addEventListener("submit", searchItems);
 document.getElementById("Search").addEventListener("reset", loadItems);
+
+//Formatting for Search Form's Date Button
+// Toggle dropdown on button click
+dateDropdownBtn.addEventListener("click", function(e) {
+    e.stopPropagation(); // Prevent event from bubbling up
+    dateDropdown.classList.toggle("show");
+});
+// Close dropdown when clicking outside
+document.addEventListener("click", function(e) {
+    if (!e.target.closest('.dropdown')) {
+        dateDropdown.classList.remove("show");
+    }
+});
+// Prevent dropdown from closing when interacting with its contents
+dateDropdown.addEventListener("click", function(e) {
+    e.stopPropagation();
+});
+// Checkbox click behavior
+atDateCheckbox.addEventListener("change", () => {
+    if (atDateCheckbox.checked) {
+        rangeDateCheckbox.checked = false;
+    }
+});
+rangeDateCheckbox.addEventListener("change", () => {
+    if (rangeDateCheckbox.checked) {
+        atDateCheckbox.checked = false;
+    }
+});
+// Input focus triggers checkbox
+dateSearch.addEventListener("focus", activateAtDate);
+dateRange.addEventListener("focus", activateRangeDate);
+// Value change also toggles checkbox
+dateSearch.addEventListener("input", activateAtDate);
+dateRange.addEventListener("input", activateRangeDate);

@@ -23,7 +23,7 @@ function addItem(req, res) {
 
 // Takes info from req and returns a json of SLQ query results
 function searchItems(req, res) {
-    const { user_id, item, price, purchase_date } = req.body;
+    const { user_id, item, price, purchase_date, start_date, end_date } = req.body;
     let query = 'SELECT * FROM itemlog WHERE user_id = ?';
     let params = [user_id];
 
@@ -36,8 +36,13 @@ function searchItems(req, res) {
         params.push(price);
     }
     if (purchase_date) {
+        // Single date filter
         query += ' AND purchase_date = ?';
         params.push(purchase_date);
+    } else if (start_date && end_date) {
+        // Date range filter
+        query += ' AND purchase_date BETWEEN ? AND ?';
+        params.push(start_date, end_date);
     }
 
     db.query(query, params, (err, results) => {
