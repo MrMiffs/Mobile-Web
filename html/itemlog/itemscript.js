@@ -1,5 +1,6 @@
 const itemList = document.getElementById('item-list');
 const totalSpend = document.getElementById('total-spend');
+const filteredSpend = document.getElementById('filtered-spend');
 const USDollar = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -200,17 +201,17 @@ async function searchItems(event) {
 
     const results = await response.json();
     itemList.innerHTML = "";
-    let totalSpendValue = 0;
+    let filteredSpendValue = 0;
 
     results.forEach(entry => {
-        totalSpendValue += parseFloat(entry.price);
+        filteredSpendValue += parseFloat(entry.price);
         const li = document.createElement("li");
         li.textContent = `${entry.item} - ${USDollar.format(entry.price)} on ${formatDate(entry.purchase_date, true)}`;
         addButtons(li, entry);
         itemList.appendChild(li);
     });
 
-    totalSpend.textContent = `${USDollar.format(totalSpendValue)}`;
+    filteredSpend.textContent = `${USDollar.format(filteredSpendValue)}`;
 }
 
 function activateAtDate() {
@@ -239,7 +240,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 // Connect form buttons
 document.getElementById("Add").addEventListener("submit", addItem);
 document.getElementById("Search").addEventListener("submit", searchItems);
-document.getElementById("Search").addEventListener("reset", loadItems);
+document.getElementById("Search").addEventListener("reset", function() {
+    loadItems();
+    filteredSpend.textContent = "$0";
+});
 
 //Formatting for Search Form's Date Button
 // Toggle dropdown on button click
