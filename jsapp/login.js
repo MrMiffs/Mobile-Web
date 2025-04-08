@@ -1,6 +1,12 @@
 //Functions to verify user login
 
 const db = require('./db');
+const { createHmac} = require('node:crypto');
+
+//secret should be identical to the secret in users.js
+const secret = 'desert-you'
+const hash = (str) =>
+    createHmac('sha256', secret).update(str).digest('hex');
 
 console.log("Accessing login.js...");
 
@@ -34,10 +40,14 @@ async function loginAttempt(req, res){
 
 //Returns permission level of user if the login is valid, -1 otherwise
 async function validateLogin(user, pw) {
+
     console.log("Beginning of validateLogin function");
+
+    hashedpw = hash(pw)
+    console.log("hashedPassword: ",hashedpw)
     const query = 'SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1';
     try {
-        const [rows] = await db.promise().query(query, [user, pw]);
+        const [rows] = await db.promise().query(query, [user, hashedpw]);
         console.log("[rows]: ",rows)
         if (rows.length === 0) {
             console.log("Error: No user found or incorrect password");

@@ -1,6 +1,12 @@
 //Functions needed to access and manage users  table in MySQL database
 
 const db = require('./db');
+const { createHmac} = require('node:crypto');
+
+//secret and hash should be identical to login.js
+const secret = 'desert-you'
+const hash = (str) =>
+    createHmac('sha256', secret).update(str).digest('hex');
 
 console.log('Accessing users.js...');
 
@@ -23,8 +29,11 @@ function addUser(req, res) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
+    hashedPassword = hash(password)
+    console.log("hashedPassword: ",hashedPassword)
+
     const query = 'INSERT INTO users (username, password, perm) VALUES (?, ?, ?)';
-    db.query(query, [username, password, perm], (err, result) => {
+    db.query(query, [username, hashedPassword, perm], (err, result) => {
         if (err) {
             console.error('Error inserting user:', err);
             return res.status(500).json({ error: 'Database error' });
@@ -88,9 +97,9 @@ function editUser(req, res) {
     if (!user_id || !username || !password || !perm) {
         return res.status(400).json({ error: 'All fields are required' });
     }
-
+    hashedPassword = hash(password);
     const query = 'UPDATE users SET username=?, password=?, perm=? WHERE user_id=?';
-    db.query( query, [username, password, perm, user_id], (err, result) => {
+    db.query( query, [username, hashedPassword, perm, user_id], (err, result) => {
             if (err) {
                 console.error('Error updating user:', err);
                 return res.status(500).json({ error: 'Database error' });
@@ -108,10 +117,12 @@ async function getID(req, res){
     if (!user || !pw) {
         return res.status(400).json({code: -1});
     }
+    hashedpw = hash(pw)
+    console.log("hashedPassword: ",hashedpw)
 
     const query = 'SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1';
     try {
-        const [rows] = await db.promise().query(query, [user, pw]);
+        const [rows] = await db.promise().query(query, [user, hashedpw]);
         if (rows.length === 0) {
             console.log("Error: No user found or incorrect password");
             return res.status(400).json({ id: -1 });
