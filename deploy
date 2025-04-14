@@ -2,6 +2,7 @@
 
 scp -r html/* Linode:/var/www/html/
 scp -r jsapp/* Linode:/var/www/jsapp/
+scp package.json Linode:/var/www/jsapp/
 
 ssh Linode systemctl restart jsapp
 ssh Linode systemctl reload nginx

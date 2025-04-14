@@ -1,19 +1,19 @@
-//Creates and exports a connection to groclog database
-const mysql = require('mysql2');
+const mongoose = require('mongoose');
 
-const db = mysql.createConnection({
-    host: '72.14.183.106',
-    user: 'dbmanager',
-    password: 'manager',
-    database: 'groclog',
+// MongoDB connection
+mongoose.connect('mongodb://localhost:27017/thiscord', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log("Connected to MongoDB"))
+    .catch(err => console.error("MongoDB connection error:", err));
+
+// Users schema
+const usersSchema = new mongoose.Schema({
+    username: { type: String, unique: true },
+    passwordHash: String
 });
+const Users = mongoose.model('Users', usersSchema);
 
-db.connect(err => {
-    if (err) {
-        console.error('Database connection failed:', err);
-        return;
-    }
-    console.log('Connected to MySQL database');
-});
-
-module.exports = db;
+module.exports = {
+    Users,
+}

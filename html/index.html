@@ -1,27 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="homescript.js"></script>
-    <title>GrocLog</title>
+    <title>ThisCord</title>
     <link rel="stylesheet" href="sitestyle.css">
-  </head>
-  <body>
-    <section class="greeting">
-      <h1>Welcome to GrocLog!</h1>
-      <p>Log in to do something!</p>
-    </section>
-    <form id="login-form" class="item-form">
-        <div class="form-piece">
-            <label for="username">Username:</label>
-            <input name="username" id="username" type="text">
-        </div>
-        <div class="form-piece">
-            <label for="pw">Password:</label>
-            <input name="pw" id="pw">
-        </div>
-        <input type="submit" value="Login">
-    </form>
-  </body>
+</head>
+<body>
+<section id="intro">
+    <h1>ThisCord Chat</h1>
+    <p>Chat with strangers! There's absolutely no risks!</p>
+</section>
+
+<form id="login-form" class="item-form">
+    <div class="form-item">
+        <label for="username">Username:</label>
+        <input id="username" type="text">
+    </div>
+    <div class="form-item">
+        <label for="password">Password:</label>
+        <input id="password" type="password">
+    </div>
+    <div class="form-item">
+        <input type="checkbox" id="showPassword">
+        <label for="showPassword">Show Password</label>
+    </div>
+    <button id="login-button">Login</button>
+</form>
+
+<h3>Chat Log:</h3>
+<section id="chatlog">
+    <p id="log-placeholder">No messages...</p>
+</section>
+
+<form id="chat-form">
+    <label for="msg">Send Chat:</label>
+    <input type="text" id="msg" name="msg" autocomplete="off">
+    <input type="submit" value="Send">
+</form>
+
+<script src="chatscript.js"></script>
+</body>
 </html>
