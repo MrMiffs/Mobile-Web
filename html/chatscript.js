@@ -64,10 +64,10 @@ async function logout() {
         localStorage.removeItem('user');
 
         // Reset UI
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('register-form').style.display = 'block';
+        document.getElementById('login-form').style.display = 'inline-flex';
+        document.getElementById('register-form').style.display = 'inline-flex';
         document.getElementById('chat-form').style.display = 'none';
-        document.getElementById('welcome-msg')?.remove();
+        document.getElementById('user-info').style.display = 'none';
     } catch (error) {
         console.error('Error:', error);
     }
@@ -77,11 +77,10 @@ function updateUIAfterLogin(username) {
     document.getElementById('login-form').style.display = 'none';
     document.getElementById('register-form').style.display = 'none';
     document.getElementById('chat-form').style.display = 'block';
+    document.getElementById('user-info').style.display = 'block';
 
-    const welcomeMsg = document.createElement('p');
-    welcomeMsg.id = 'welcome-msg';
+    const welcomeMsg = document.getElementById('welcome-msg');
     welcomeMsg.textContent = `Welcome, ${username}!`;
-    document.getElementById('intro').appendChild(welcomeMsg);
 
     loadMessages();
 }
@@ -227,6 +226,7 @@ async function loadMessages() {
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('register-form').addEventListener('submit', register);
     document.getElementById('login-form').addEventListener('submit', login);
+    document.getElementById('logout-button').addEventListener('click', logout);
     document.getElementById('chat-form').addEventListener('submit', sendMessage);
 
     // Load messages if logged in
