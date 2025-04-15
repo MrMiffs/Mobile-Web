@@ -18,12 +18,14 @@ form label {
 }
 
 .chat-container {
-    max-height: 400px;
+    max-height: 60vh; /* Use viewport height units */
     overflow-y: auto;
     border: 1px solid #ddd;
     padding: 10px;
-    margin-bottom: 20px;
     background-color: #f9f9f9;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .message {
@@ -32,6 +34,8 @@ form label {
     border-radius: 5px;
     background-color: white;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    word-break: break-word; /* Prevent horizontal overflow */
+    max-width: 100%;
 }
 
 .message-header {
@@ -57,4 +61,44 @@ form label {
 
 #chat-form {
     margin-top: 20px;
+}
+
+/* Mobile-specific adjustments */
+@media screen and (max-width: 768px) {
+    .chat-container {
+        max-height: 65vh; /* Slightly more height on mobile */
+        padding: 8px;
+        border-left: none;
+        border-right: none;
+    }
+
+    .message {
+        padding: 8px;
+        margin-bottom: 12px;
+    }
+
+    .message-header {
+        flex-direction: column; /* Stack username and timestamp */
+    }
+
+    .timestamp {
+        font-size: 0.8em;
+        margin-top: 2px;
+    }
+}
+
+/* Very small devices */
+@media screen and (max-width: 480px) {
+    .chat-container {
+        max-height: 70vh;
+        padding: 5px;
+    }
+
+    .message {
+        padding: 6px;
+    }
+
+    .username, .message-content {
+        font-size: 0.9em;
+    }
 }

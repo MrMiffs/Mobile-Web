@@ -1,5 +1,29 @@
 const chatlog = document.getElementById('chatlog');
 
+// Initialize Socket.io connection
+const socket = io('https://testname.mooo.com', {
+    withCredentials: true,
+    secure: true,
+    transports: ['websocket'],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+    timeout: 20000
+});
+
+// Listen for new messages
+socket.on('new_message', () => {
+    loadMessages();
+});
+socket.on('connect_error', (err) => {
+    console.error('Connection error:', err);
+    // Fallback to polling if websocket fails
+    socket.io.opts.transports = ['polling', 'websocket'];
+});
+socket.on('reconnect_attempt', () => {
+    console.log('Attempting to reconnect...');
+});
+
 async function login(event) {
     event.preventDefault();
 
@@ -60,7 +84,6 @@ function updateUIAfterLogin(username) {
     document.getElementById('intro').appendChild(welcomeMsg);
 
     loadMessages();
-    setInterval(loadMessages, 5000); // Refresh every 5 seconds
 }
 
 // Check if user is already logged in on page load
@@ -128,7 +151,7 @@ async function sendMessage(event) {
 
         const newMessage = await response.json();
         messageInput.value = '';
-        addMessageToUI(newMessage);
+        loadMessages();
 
     } catch (error) {
         console.error('Message send error:', error);
@@ -148,25 +171,29 @@ function handleApiError(error) {
     }
 }
 
-function addMessageToUI(message) {
+function renderMessages(messages) {
     const chatlog = document.getElementById('chatlog');
-    const placeholder = document.getElementById('log-placeholder');
+    chatlog.innerHTML = '';  // Clear all content
 
-    if (placeholder) {
-        chatlog.removeChild(placeholder);
+    if (messages.length === 0) {
+        // Only add placeholder if no messages
+        chatlog.innerHTML = '<p id="log-placeholder">No messages...</p>';
+        return;
     }
 
-    const messageElement = document.createElement('div');
-    messageElement.className = 'message';
-    messageElement.innerHTML = `
-        <div class="message-header">
-            <span class="username">${message.username}</span>
-            <span class="timestamp">${new Date(message.timestamp).toLocaleString()}</span>
-        </div>
-        <div class="message-content">${message.message}</div>
-    `;
+    messages.forEach(msg => {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message';
+        messageElement.innerHTML = `
+            <div class="message-header">
+                <span class="username">${msg.username}</span>
+                <span class="timestamp">${new Date(msg.timestamp).toLocaleString()}</span>
+            </div>
+            <div class="message-content">${msg.message}</div>
+        `;
+        chatlog.appendChild(messageElement);
+    });
 
-    chatlog.appendChild(messageElement);
     chatlog.scrollTop = chatlog.scrollHeight;
 }
 
@@ -205,6 +232,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load messages if logged in
     if (localStorage.getItem('user')) {
         loadMessages();
-        setInterval(loadMessages, 5000); // Refresh every 5 seconds
     }
 });

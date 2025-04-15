@@ -1,14 +1,30 @@
 const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-const app = express();
-const PORT = 3000;
 const db = require('./db')
 const users =  require('./users');
 
+const app = express();
+app.use(cors({
+    origin: "https://testname.mooo.com",
+    credentials: true
+}));
 app.use(bodyParser.json());
 app.use(cookieParser());
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "https://testname.mooo.com",
+        methods: ["GET", "POST"],
+        credentials: true,
+        transports: ['websocket', 'polling'] // Enable both transports
+    },
+    allowEIO3: true // For Socket.io v2/v3 compatibility
+});
 
 // Authentication middleware
 function authenticateToken(req, res, next) {
@@ -40,7 +56,7 @@ app.get('/api/protected', authenticateToken, (req, res) => {
 });
 app.get('/api/messages', async (req, res) => {
     try {
-        const messages = await db.Messages.find().sort({ timestamp: -1 }).limit(50);
+        const messages = await db.Messages.find().sort({ timestamp: 1 }).limit(50);
         res.json(messages);
     } catch (err) {
         res.status(500).json({ message: 'Error fetching messages' });
@@ -65,18 +81,22 @@ app.post('/api/messages', authenticateToken, async (req, res) => {
         // Emit to all connected clients if using WebSockets
         io.emit('new_message', newMessage); // If you implement WebSockets later
 
-        res.status(201).json({
-            _id: newMessage._id,
-            username: newMessage.username,
-            message: newMessage.message,
-            timestamp: newMessage.timestamp
-        });
+        res.status(201).json(newMessage);
     } catch (err) {
         console.error('Message save error:', err);
         res.status(500).json({ message: 'Error saving message', error: err.message });
     }
 });
 
-app.listen(PORT, () => {
+io.on('connection', (socket) => {
+    console.log('New client connected');
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+    });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
