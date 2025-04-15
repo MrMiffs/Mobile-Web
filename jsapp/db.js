@@ -14,6 +14,15 @@ const usersSchema = new mongoose.Schema({
 });
 const Users = mongoose.model('Users', usersSchema);
 
+const messageSchema = new mongoose.Schema({
+    username: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now }
+});
+const Messages = mongoose.model('Messages', messageSchema);
+
+
 module.exports = {
     Users,
+    Messages,
 }
