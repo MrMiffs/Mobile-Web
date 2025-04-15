@@ -229,8 +229,5 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('logout-button').addEventListener('click', logout);
     document.getElementById('chat-form').addEventListener('submit', sendMessage);
 
-    // Load messages if logged in
-    if (localStorage.getItem('user')) {
-        loadMessages();
-    }
+    loadMessages();
 });
