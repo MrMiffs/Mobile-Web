@@ -43,8 +43,8 @@ app.delete('/api/deleteitem', authenticateToken, itemlog.deleteItem);
 app.put("/api/edititem", authenticateToken, itemlog.editItem);
 
 //Routes for users
-app.post('/api/adduser', users.addUser);
-app.post('/api/getusers', users.getUsers);
+app.post('/api/adduser', authenticateToken, users.addUser);
+app.post('/api/getusers', authenticateToken, users.getUsers);
 app.post('/api/searchusers', authenticateToken, users.searchUsers);
 app.delete('/api/deleteuser', authenticateToken, users.deleteUser);
 app.put('/api/edituser', authenticateToken, users.editUser);
