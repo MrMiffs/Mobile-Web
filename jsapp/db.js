@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/groclog', {
@@ -10,12 +10,26 @@ mongoose.connect('mongodb://localhost:27017/groclog', {
 
 // Create user schema in database
 const userSchema = new mongoose.Schema({
-    userId: {type: Number, unique: true, required: true},
-    username: { type: String, unique: true , required: true },
-    passwordHash: { type: String, required: true },
-    role: {type: Number, default: 0},
+    username: {
+        type: String,
+        unique: true,
+        required: true
+    },
+    passwordHash: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: Number,
+        default: 0  // 0 = regular user, 1 = admin
+    }
 });
-userSchema.plugin(AutoIncrement, {inc_field: 'userId'});
+// Auto-increment userId (starts at 1, increments by 1)
+userSchema.plugin(AutoIncrement, {
+    id: 'user_id_counter',  // Identifier for the counter
+    inc_field: 'userId',    // Field to increment
+    start_seq: 1           // First userId will be 1
+});
 const User = mongoose.model('User', userSchema);
 
 // Create item schema in database

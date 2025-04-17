@@ -4,7 +4,7 @@ const db = require('./db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const SECRET = 'desert-you'
+const SECRET = 'desert-you';
 
 console.log('Accessing users.js...');
 
@@ -24,7 +24,7 @@ async function login(req, res) {
     const { username, password } = req.body;
 
     // Check for user with matching username
-    const user = await db.Users.findOne({ username });
+    const user = await db.User.findOne({ username });
     if (!user) {
         return res.status(401).json({ message: 'User not found' });
     }
@@ -48,7 +48,7 @@ async function login(req, res) {
         // Return json with user info (password is not saved)
         return res.status(200).json({
             message: 'Login successful',
-            user: { id: user.id, username: user.username, role: user.role }
+            user: { id: user.userId, username: user.username, role: user.role }
         });
     } else {
         return res.status(401).json({ message: 'Invalid password' });
@@ -58,12 +58,12 @@ async function login(req, res) {
 async function addUser(req, res) {
     const { username, password, role } = req.body;
 
-    if (await db.Users.findOne({ username })) {
+    if (await db.User.findOne({ username })) {
         return res.status(409).json({ message: 'User already exists' });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = new db.Users({ username, passwordHash, role });
+    const newUser = new db.User({ username, passwordHash, role });
 
     try {
         await newUser.save();

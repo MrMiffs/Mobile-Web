@@ -51,27 +51,6 @@ function addButtons(li, entry) {
     li.appendChild(buttonDiv);
 }
 
-async function getUserId(){
-    let data = JSON.stringify({user: sessionStorage.getItem('user'), pw: sessionStorage.getItem('pw')})
-    //console.log("data to fetch: ",data)
-    return fetch("/api/getID", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: data
-    })
-    .then(response => response.json())
-    .then(data => {
-        //console.log("return data: ",data)
-        return data.id;
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        return -1;
-    });
-}
-
 function addListItem(list, entry) {
     const li = document.createElement("li");
     const formattedDate = formatDate(entry.purchaseDate, true);
@@ -310,15 +289,16 @@ function activateRangeDate() {
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-    userId = await getUserId();
-    console.log("id returned:", userId);
+    userRole = parseInt(sessionStorage.getItem("role"));
+    console.log("role returned:", userRole);
 
-    if (userId === undefined || userId === -1 || userId === 0) {
-        console.error("Invalid user ID, skipping item loading.");
-        window.location.href = '/';
+    if (userRole === 0) {
+        userId = parseInt(sessionStorage.getItem("userId"));
+        loadItems(userId);
     }
     else {
-        loadItems(userId);
+        console.error("Invalid user role, skipping item loading.");
+        window.location.href = '/';
     }
 });
 

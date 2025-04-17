@@ -4,52 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
-  <link rel="stylesheet" href="../sitestyle.css">
+    <link rel="stylesheet" href="../sitestyle.css">
 </head>
 <body>
-  <h1>Admin Page</h1>
+<h1>Admin Page</h1>
 
-  <!-- Add User Form -->
-  <form id="Add" class="item-form">
-      <div class="form-piece">
-          <label for="usernameAdd">Username:</label>
-          <input name="username" id="usernameAdd" required>
-      </div>
-      <div class="form-piece">
-          <label for="passwordAdd">Password:</label>
-          <input name="password" id="passwordAdd" type="password" required>
-      </div>
-      <div class="form-piece">
-          <label for="permAdd">Perm:</label>
-          <input name="perm" id="permAdd" required>
-      </div>
-      <input type="submit" value="Add User">
-  </form>
+<!-- Add User Form -->
+<form id="Add" class="item-form">
+    <div class="form-piece">
+        <label for="usernameAdd">Username:</label>
+        <input name="username" id="usernameAdd" required>
+    </div>
+    <div class="form-piece">
+        <label for="passwordAdd">Password:</label>
+        <input name="password" id="passwordAdd" type="password" required>
+    </div>
+    <div class="form-piece">
+        <label for="permAdd">Perm:</label>
+        <select name="perm" id="permAdd" size="2" required>
+            <option value=0>User: 0</option>
+            <option value=1>Admin: 1</option>
+        </select>
+    </div>
+    <input type="submit" value="Add User">
+</form>
 
-  <!-- Search User Form -->
-  <form id="Search" class="item-form">
-      <div class="form-piece">
-          <label for="usernameSearch">Username:</label>
-          <input name="username" id="usernameSearch">
-      </div>
-      <div class="form-piece">
-          <label for="passwordSearch">Password:</label>
-          <input name="password" id="passwordSearch" type="password">
-      </div>
-      <div class="form-piece">
-          <label for="permSearch">Perm:</label>
-          <input name="perm" id="permSearch">
-      </div>
-      <div class="form-piece">
-          <input type="submit" value="Search User">
-          <input type="reset" value="Reset">
-      </div>
-  </form>
+<!-- Search User Form -->
+<form id="Search" class="item-form">
+    <div class="form-piece">
+        <label for="usernameSearch">Username:</label>
+        <input name="username" id="usernameSearch">
+    </div>
+    <div class="form-piece">
+        <label for="passwordSearch">Password:</label>
+        <input name="password" id="passwordSearch" type="password">
+    </div>
+    <div class="form-piece">
+        <label for="permSearch">Perm:</label>
+        <select name="perm" id="permSearch" size="2" required>
+            <option value=0>User: 0</option>
+            <option value=1>Admin: 1</option>
+        </select>
+    </div>
+    <div class="form-piece">
+        <input type="submit" value="Search User">
+        <input type="reset" value="Reset">
+    </div>
+</form>
 
-  <!-- Display Users -->
-  <h2>Users</h2>
-  <ul id="item-list"></ul>
+<!-- Display Users -->
+<h2>Users</h2>
+<ul id="item-list"></ul>
 
-  <script src="adminscript.js"></script>
+<script src="adminscript.js"></script>
 </body>
 </html>

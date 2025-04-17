@@ -1,26 +1,5 @@
 const itemList = document.getElementById('item-list');
 
-async function getUserId(){
-    let data = JSON.stringify({user: sessionStorage.getItem('user'), pw: sessionStorage.getItem('pw')})
-    //console.log("data to fetch: ",data)
-    return fetch("/api/getID", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: data
-    })
-        .then(response => response.json())
-        .then(data => {
-            console.log("return data: ",data)
-            return id = data.id;
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            return -1;
-        });
-}
-
 function addButtons(li, entry) {
     //Create Buttons
     const buttonDiv = document.createElement("div");
@@ -135,14 +114,14 @@ async function searchUsers(event) {
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-    userId = await getUserId();
-    console.log("id returned:", userId);
+    userRole = parseInt(sessionStorage.getItem("role"));
+    console.log("role returned:", userRole);
 
-    if (userId === 0) {
+    if (userRole === 1) {
         loadUsers();
     }
     else {
-        console.error("Invalid user ID, skipping item loading.");
+        console.error("Invalid user role, skipping item loading.");
         window.location.href = '/';
     }
 });
