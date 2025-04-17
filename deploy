@@ -1,7 +1,7 @@
 #!/bin/bash
 
-scp -r html/* SharedLinodeRoot:/var/www/html/
-scp -r jsapp/* SharedLinodeRoot:/var/www/jsapp/
+scp -r html/* Linode:/var/www/html/
+scp -r jsapp/* Linode:/var/www/jsapp/
 
-ssh SharedLinodeRoot systemctl restart jsapp
-ssh SharedLinodeRoot systemctl reload nginx
+ssh Linode systemctl restart jsapp
+ssh Linode systemctl reload nginx
