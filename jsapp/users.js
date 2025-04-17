@@ -8,19 +8,16 @@ const SECRET = 'desert-you'
 
 console.log('Accessing users.js...');
 
-//Stores json version of SQL query results in res
-function getUsers(req, res) {
-    const query = 'SELECT * FROM users';
-
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error searching users:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        res.json(results);
-    });
+// Get all users
+async function getUsers(req, res) {
+    try {
+        const users = await User.find({});
+        res.json(users);
+    } catch (err) {
+        console.error('Error retrieving users:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
 }
-
 
 
 async function login(req, res) {
@@ -59,14 +56,14 @@ async function login(req, res) {
 }
 
 async function addUser(req, res) {
-    const { username, password, perm } = req.body;
+    const { username, password, role } = req.body;
 
     if (await db.Users.findOne({ username })) {
         return res.status(409).json({ message: 'User already exists' });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = new db.Users({ username, passwordHash, perm });
+    const newUser = new db.Users({ username, passwordHash, role });
 
     try {
         await newUser.save();
@@ -76,111 +73,95 @@ async function addUser(req, res) {
     }
 }
 
-// Takes info from req and returns a json of SLQ query results
-function searchUsers(req, res) {
+
+async function searchUsers(req, res) {
     const { username, password, perm } = req.body;
-    let query = 'SELECT * FROM users WHERE true'; //Always true, allows optional filters to be applied
-    let params = [];
+    let filter = {};
 
     if (username) {
-        query += ' AND username LIKE ?';
-        params.push(`%${username}%`);
+        filter.username = { $regex: username, $options: 'i' };
     }
     if (password) {
-        query += ' AND password = ?';
-        params.push(password);
+        filter.passwordHash = await bcrypt.hash(password, 10);
     }
-    if (perm) {
-        query += ' AND perm = ?';
-        params.push(perm);
+    if (perm !== undefined) {
+        filter.role = perm;
     }
 
-    db.query(query, params, (err, results) => {
-        if (err) {
-            console.error('Error searching users:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        res.json(results);
-    });
+    try {
+        const users = await User.find(filter, '-passwordHash');
+        res.json(users);
+    } catch (err) {
+        console.error('Error searching users:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
 }
 
-function deleteUser(req, res) {
-    const {user_id} = req.body;
-    console.log(`User_id to delete: ${user_id}`);
+async function deleteUser(req, res) {
+    const { user_id } = req.body;
 
-
-    if (!user_id) {
-        return res.status(400).json({ error: 'All fields are required' });
-    }
-
-    const query = 'DELETE FROM users WHERE user_id=?';
-    db.query(query, [user_id], (err, result) => {
-        if (err) {
-            console.error('Error deleting user:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        if (result.affectedRows === 0) {
+    try {
+        const result = await User.deleteOne({ userId: user_id });
+        if (result.deletedCount === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
-        res.json({ message: 'User deleted successfully'});
-    });
+        res.json({ message: 'User deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting user:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
 }
 
-function editUser(req, res) {
-    const {user_id, username, password, perm } = req.body;
-    if (!user_id || !username || !password || !perm) {
+async function editUser(req, res) {
+    const { user_id, username, password, perm } = req.body;
+    if (!user_id || !username || !password || perm === undefined) {
         return res.status(400).json({ error: 'All fields are required' });
     }
-    hashedPassword = hash(password);
-    const query = 'UPDATE users SET username=?, password=?, perm=? WHERE user_id=?';
-    db.query( query, [username, hashedPassword, perm, user_id], (err, result) => {
-            if (err) {
-                console.error('Error updating user:', err);
-                return res.status(500).json({ error: 'Database error' });
-            }
-            if (result.affectedRows === 0) {
-                return res.status(404).json({ error: 'No matching user found to update' });
-            }
-            res.json({ message: 'User updated successfully' });
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    try {
+        const result = await User.updateOne(
+            { userId: user_id },
+            { $set: { username, passwordHash, role: perm } }
+        );
+        if (result.modifiedCount === 0) {
+            return res.status(404).json({ error: 'No matching user found to update' });
         }
-    );
+        res.json({ message: 'User updated successfully' });
+    } catch (err) {
+        console.error('Error updating user:', err);
+        res.status(500).json({ error: 'Database error' });
+    }
 }
 
-async function getID(req, res){
+
+async function getID(req, res) {
     const { user, pw } = req.body;
     if (!user || !pw) {
-        return res.status(400).json({code: -1});
-    }
-    hashedpw = hash(pw)
-    console.log("hashedPassword: ",hashedpw)
-
-    const query = 'SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1';
-    try {
-        const [rows] = await db.promise().query(query, [user, hashedpw]);
-        if (rows.length === 0) {
-            console.log("Error: No user found or incorrect password");
-            return res.status(400).json({ id: -1 });
-        } else {
-            console.log("No error, user exists with correct password");
-            console.log("Result (perm):", rows[0].perm);
-            console.log("User id to return: ",rows[0].user_id)
-            if( rows[0].perm === 1) {
-                return res.status(400).json({ id: 0 });
-            }
-            else{
-                return res.status(200).json({id: rows[0].user_id})
-            }
-        }
-    }
-    catch (error) {
-        console.error("Database error:", error);
-        return -1;
+        return res.status(400).json({ code: -1 });
     }
 
+    const foundUser = await User.findOne({ username: user });
+    if (!foundUser) {
+        return res.status(400).json({ id: -1 });
+    }
+
+    const valid = await bcrypt.compare(pw, foundUser.passwordHash);
+    if (!valid) {
+        return res.status(400).json({ id: -1 });
+    }
+
+    if (foundUser.role === 1) {
+        return res.status(400).json({ id: 0 });
+    }
+
+    return res.status(200).json({ id: foundUser.userId });
 }
 
 module.exports = {
     getUsers,
+    login,
     addUser,
     searchUsers,
     deleteUser,
