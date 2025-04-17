@@ -11,6 +11,7 @@ const atDateCheckbox = document.getElementById("atDateCheckbox");
 const rangeDateCheckbox = document.getElementById("rangeDateCheckbox");
 const dateSearch = document.getElementById("dateSearch");
 const dateRange = document.getElementById("dateRange");
+const userId = parseInt(sessionStorage.getItem('userId'));
 
 
 // Returns formatted date string:
@@ -197,7 +198,7 @@ async function editItem(entry) {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: entry.userId,
+                    userId: userId,
                     item: entry.item,
                     price: entry.price,
                     purchaseDate: formatDate(entry.purchaseDate),
@@ -293,8 +294,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     console.log("role returned:", userRole);
 
     if (userRole === 0) {
-        userId = parseInt(sessionStorage.getItem("userId"));
-        loadItems(userId);
+        loadItems();
     }
     else {
         console.error("Invalid user role, skipping item loading.");

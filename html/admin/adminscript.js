@@ -30,7 +30,7 @@ async function loadUsers() {
     itemList.innerHTML = "";
     results.forEach(entry => {
         const li = document.createElement("li");
-        li.textContent = `${entry.user_id}: Username: ${entry.username} Password: ${entry.password} Perm: ${entry.perm}`;
+        li.textContent = `${entry.userId}: Username: ${entry.username} Password: ${entry.passwordHash} Role: ${entry.role}`;
 
         addButtons(li, entry);
         itemList.appendChild(li);
@@ -43,12 +43,12 @@ async function addUser(event) {
 
     const username = document.getElementById("usernameAdd").value;
     const password = document.getElementById("passwordAdd").value;
-    const perm = document.getElementById("permAdd").value;
+    const role = document.getElementById("roleAdd").value;
 
     await fetch("/api/adduser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, perm })
+        body: JSON.stringify({ username, password, role })
     });
 
     // Reload users after adding
@@ -60,26 +60,26 @@ async function deleteUser(entry) {
     await fetch('/api/deleteuser', {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({user_id : entry.user_id}),
+        body: JSON.stringify({userId : entry.userId}),
     });
     loadUsers();
 }
 
 // Function to handle editing a user
 async function editUser(entry) {
-    const newUsername = prompt("Edit usernamename:", entry.username);
+    const newUsername = prompt("Edit username:", entry.username);
     const newPassword = prompt("Edit password:", entry.password);
-    const newPerm = prompt("Edit perm:", entry.perm);
+    const newRole = prompt("Edit Role:", entry.role);
 
-    if (newUsername && newPassword && newPerm) {
+    if (newUsername && newPassword && newRole) {
         await fetch("/api/edituser", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                user_id: entry.user_id,
+                userId: entry.userId,
                 username: newUsername,
                 password: newPassword,
-                perm: newPerm,
+                role: newRole,
             }),
         });
 
@@ -93,12 +93,12 @@ async function searchUsers(event) {
 
     const username = document.getElementById("usernameSearch").value;
     const password = document.getElementById("passwordSearch").value;
-    const perm = document.getElementById("permSearch").value;
+    const role = document.getElementById("roleSearch").value;
 
     const response = await fetch("/api/searchusers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username, password: password, perm: perm })
+        body: JSON.stringify({ username: username, password: password, role: role })
     });
 
     const results = await response.json();
@@ -106,7 +106,7 @@ async function searchUsers(event) {
 
     results.forEach(entry => {
         const li = document.createElement("li");
-        li.textContent = `${entry.user_id}: Username: ${entry.username} Password: ${entry.password} Perm: ${entry.perm}`;
+        li.textContent = `${entry.userId}: Username: ${entry.username} Password: ${entry.password} Perm: ${entry.role}`;
 
         addButtons(li, entry);
         itemList.appendChild(li);

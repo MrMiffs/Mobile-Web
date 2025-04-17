@@ -4,16 +4,16 @@ console.log('Accessing itemlog.js...');
 
 // Add new item
 async function addItem(req, res) {
-    const { user_id, item, price, purchase_date, location, brand, type } = req.body;
-    if (!user_id || !item || !price || !purchase_date) {
+    const { userId, item, price, purchaseDate, location, brand, type } = req.body;
+    if (!userId || !item || !price || !purchaseDate) {
         return res.status(400).json({ error: 'Required fields missing' });
     }
 
     const newItem = new Item({
-        userId: user_id,
+        userId: userId,
         item,
         price,
-        purchaseDate: purchase_date,
+        purchaseDate: purchaseDate,
         location: location || null,
         brand: brand || null,
         type: type || null
@@ -30,17 +30,17 @@ async function addItem(req, res) {
 
 // Search items
 async function searchItems(req, res) {
-    const { user_id, item, price, purchase_date, start_date, end_date, location, brand, type } = req.body;
-    if (!user_id) {
+    const { userId, item, price, purchaseDate, start_date, end_date, location, brand, type } = req.body;
+    if (!userId) {
         return res.status(400).json({ error: 'User ID is required' });
     }
 
-    let filter = { userId: user_id };
+    let filter = { userId: userId };
 
     if (item) filter.item = { $regex: item, $options: 'i' };
     if (price) filter.price = price;
-    if (purchase_date) {
-        filter.purchaseDate = purchase_date;
+    if (purchaseDate) {
+        filter.purchaseDate = purchaseDate;
     } else if (start_date && end_date) {
         filter.purchaseDate = { $gte: start_date, $lte: end_date };
     }
@@ -59,17 +59,17 @@ async function searchItems(req, res) {
 
 // Delete item
 async function deleteItem(req, res) {
-    const { user_id, item, price, purchase_date } = req.body;
-    if (!user_id || !item || !price || !purchase_date) {
+    const { userId, item, price, purchaseDate } = req.body;
+    if (!userId || !item || !price || !purchaseDate) {
         return res.status(400).json({ error: 'All fields are required for deletion' });
     }
 
     try {
         const result = await Item.deleteOne({
-            userId: user_id,
+            userId: userId,
             item,
             price,
-            purchaseDate: purchase_date
+            purchaseDate: purchaseDate
         });
 
         if (result.deletedCount === 0) {
@@ -97,7 +97,7 @@ async function editItem(req, res) {
         newType
     } = req.body;
 
-    if (!userId || !item || !price || !purchase_date || !newItem || !newPrice || !newDate) {
+    if (!userId || !item || !price || !purchaseDate || !newItem || !newPrice || !newDate) {
         return res.status(400).json({ error: 'Required fields missing for editing' });
     }
 

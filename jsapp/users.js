@@ -11,7 +11,7 @@ console.log('Accessing users.js...');
 // Get all users
 async function getUsers(req, res) {
     try {
-        const users = await User.find({});
+        const users = await db.User.find({});
         res.json(users);
     } catch (err) {
         console.error('Error retrieving users:', err);
@@ -98,10 +98,10 @@ async function searchUsers(req, res) {
 }
 
 async function deleteUser(req, res) {
-    const { user_id } = req.body;
+    const { userId } = req.body;
 
     try {
-        const result = await User.deleteOne({ userId: user_id });
+        const result = await User.deleteOne({ userId: userId });
         if (result.deletedCount === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -113,8 +113,8 @@ async function deleteUser(req, res) {
 }
 
 async function editUser(req, res) {
-    const { user_id, username, password, perm } = req.body;
-    if (!user_id || !username || !password || perm === undefined) {
+    const { userId, username, password, perm } = req.body;
+    if (!userId || !username || !password || perm === undefined) {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
@@ -122,7 +122,7 @@ async function editUser(req, res) {
 
     try {
         const result = await User.updateOne(
-            { userId: user_id },
+            { userId: userId },
             { $set: { username, passwordHash, role: perm } }
         );
         if (result.modifiedCount === 0) {
