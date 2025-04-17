@@ -74,7 +74,7 @@ async function getUserId(){
 
 function addListItem(list, entry) {
     const li = document.createElement("li");
-    const formattedDate = formatDate(entry.purchase_date, true);
+    const formattedDate = formatDate(entry.purchaseDate, true);
 
     // Create item display text
     const itemText = document.createElement("div");
@@ -118,7 +118,7 @@ async function loadItems() {
     const response = await fetch("/api/searchitem", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId })
+        body: JSON.stringify({ userId: userId })
     });
     const results = await response.json();
     itemList.innerHTML = "";
@@ -147,10 +147,10 @@ async function addItem(event) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            user_id: userId,
+            userId: userId,
             item,
             price,
-            purchase_date: purchaseDate,
+            purchaseDate: purchaseDate,
             location,
             brand,
             type
@@ -167,10 +167,10 @@ async function deleteItem(entry) {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            user_id: userId,
+            userId: userId,
             item: entry.item,
             price: entry.price,
-            purchase_date: formatDate(entry.purchase_date), // Original date format
+            purchaseDate: formatDate(entry.purchaseDate), // Original date format
         })
     });
     loadItems();
@@ -183,7 +183,7 @@ async function editItem(entry) {
         <div class="edit-form">
             <label>Item Name: <input type="text" id="editItemName" value="${entry.item}"></label>
             <label>Price: <input type="number" step="0.01" id="editItemPrice" value="${entry.price}"></label>
-            <label>Date: <input type="date" id="editItemDate" value="${formatDate(entry.purchase_date)}"></label>
+            <label>Date: <input type="date" id="editItemDate" value="${formatDate(entry.purchaseDate)}"></label>
             <label>Location: <input type="text" id="editItemLocation" list="locationOptions" value="${entry.location || ''}"></label>
             <label>Brand: <input type="text" id="editItemBrand" list="brandOptions" value="${entry.brand || ''}"></label>
             <label>Type: <input type="text" id="editItemType" list="typeOptions" value="${entry.type || ''}"></label>
@@ -218,10 +218,10 @@ async function editItem(entry) {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    user_id: entry.user_id,
+                    userId: entry.userId,
                     item: entry.item,
                     price: entry.price,
-                    purchase_date: formatDate(entry.purchase_date),
+                    purchaseDate: formatDate(entry.purchaseDate),
                     newItem: item,
                     newPrice: price,
                     newDate: date,
@@ -249,7 +249,7 @@ async function searchItems(event) {
     const type = document.getElementById("typeSearch").value.trim();
 
     const searchParams = {
-        user_id: userId,
+        userId: userId,
         item,
         price,
         location,
@@ -264,7 +264,7 @@ async function searchItems(event) {
             return;
         }
         else {
-            searchParams.purchase_date = dateSearchValue;
+            searchParams.purchaseDate = dateSearchValue;
         }
     }
     else if (rangeDateCheckbox.checked) {
