@@ -68,6 +68,7 @@ async function logout() {
         document.getElementById('register-form').style.display = 'inline-flex';
         document.getElementById('chat-form').style.display = 'none';
         document.getElementById('user-info').style.display = 'none';
+        document.getElementById('font-selector').style.display = 'none';
     } catch (error) {
         console.error('Error:', error);
     }
@@ -78,19 +79,12 @@ function updateUIAfterLogin(username) {
     document.getElementById('register-form').style.display = 'none';
     document.getElementById('chat-form').style.display = 'block';
     document.getElementById('user-info').style.display = 'block';
+    document.getElementById('font-selector').style.display = 'block';
 
     const welcomeMsg = document.getElementById('welcome-msg');
     welcomeMsg.textContent = `Welcome, ${username}!`;
 
     loadMessages();
-}
-
-// Check if user is already logged in on page load
-function checkAuthStatus() {
-    const user = localStorage.getItem('user');
-    if (user) {
-        updateUIAfterLogin(JSON.parse(user).username);
-    }
 }
 
 async function register(event) {
@@ -171,8 +165,8 @@ function handleApiError(error) {
 }
 
 function renderMessages(messages) {
-    const chatlog = document.getElementById('chatlog');
     chatlog.innerHTML = '';  // Clear all content
+    const userFont = localStorage.getItem('selectedFont') || 'Arial'; // Default font
 
     if (messages.length === 0) {
         // Only add placeholder if no messages
@@ -183,6 +177,9 @@ function renderMessages(messages) {
     messages.forEach(msg => {
         const messageElement = document.createElement('div');
         messageElement.className = 'message';
+        messageElement.style.fontFamily = (msg.username === JSON.parse(localStorage.getItem('user'))?.username)
+            ? userFont
+            : 'inherit'; // Applies font to the current user's messages
         messageElement.innerHTML = `
             <div class="message-header">
                 <span class="username">${msg.username}</span>
@@ -221,6 +218,16 @@ async function loadMessages() {
     }
 }
 
+async function loadFont(fontFamily) {
+    try {
+        const font = new FontFace(fontFamily, `url(https://fonts.googleapis.com/css2?family=${fontFamily.replace(/'/g, '').replace(/\s+/g, '+')}&display=swap`);
+        await font.load();
+        document.fonts.add(font);
+        console.log(`Font ${fontFamily} loaded`);
+    } catch (error) {
+        console.error(`Failed to load font ${fontFamily}:`, error);
+    }
+}
 
 // Call this when the page loads
 document.addEventListener('DOMContentLoaded', () => {
@@ -230,4 +237,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('chat-form').addEventListener('submit', sendMessage);
 
     loadMessages();
+});
+
+// Call this when the font selector changes
+document.getElementById('font-family').addEventListener('change', async (e) => {
+    const fontFamily = e.target.value;
+    if (fontFamily.includes('Open Sans')) {
+        await loadFont(fontFamily); // Load web fonts dynamically
+    }
+    localStorage.setItem('selectedFont', fontFamily); // Save preference
+    applyFontToMessages(fontFamily);
 });

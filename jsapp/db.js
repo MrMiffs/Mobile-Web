@@ -1,50 +1,28 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/groclog', {
+mongoose.connect('mongodb://localhost:27017/thiscord', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log("Connected to MongoDB"))
     .catch(err => console.error("MongoDB connection error:", err));
 
-// Create user schema in database
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        unique: true,
-        required: true
-    },
-    passwordHash: {
-        type: String,
-        required: true
-    },
-    role: {
-        type: Number,
-        default: 0  // 0 = regular user, 1 = admin
-    }
+// Users schema
+const usersSchema = new mongoose.Schema({
+    username: { type: String, unique: true },
+    passwordHash: String
 });
-// Auto-increment userId (starts at 1, increments by 1)
-userSchema.plugin(AutoIncrement, {
-    id: 'user_id_counter',  // Identifier for the counter
-    inc_field: 'userId',    // Field to increment
-    start_seq: 1           // First userId will be 1
-});
-const User = mongoose.model('User', userSchema);
+const Users = mongoose.model('Users', usersSchema);
 
-// Create item schema in database
-const itemSchema = new mongoose.Schema({
-    userId: {type: Number, required: true},
-    item: {type: String, required: true},
-    price: {type: Number, required: true},
-    purchaseDate: { type: Date, required: true, default: Date.now },
-    location: String,
-    brand: String,
-    type: String,
+const messageSchema = new mongoose.Schema({
+    username: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now }
 });
-const Item = mongoose.model('Item', itemSchema);
+const Messages = mongoose.model('Messages', messageSchema);
+
 
 module.exports = {
-    User,
-    Item,
+    Users,
+    Messages,
 }
