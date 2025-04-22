@@ -1,4 +1,4 @@
-const db = require('../old-projects/groclog/jsapp/db');
+const db = require('./db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -51,7 +51,6 @@ async function register(req, res) {
         res.status(500).json({ message: 'Error registering user', error: err });
     }
 }
-
 
 module.exports = {
     login,

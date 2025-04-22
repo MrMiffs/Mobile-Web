@@ -164,22 +164,20 @@ function handleApiError(error) {
     }
 }
 
-function renderMessages(messages) {
-    chatlog.innerHTML = '';  // Clear all content
-    const userFont = localStorage.getItem('selectedFont') || 'Arial'; // Default font
+async function renderMessages(messages) {
+    const fontMap = await loadUserFonts(messages);
+    const currentUser = JSON.parse(localStorage.getItem('user'))?.username;
 
-    if (messages.length === 0) {
-        // Only add placeholder if no messages
-        chatlog.innerHTML = '<p id="log-placeholder">No messages...</p>';
-        return;
-    }
+    chatlog.innerHTML = '';
 
     messages.forEach(msg => {
         const messageElement = document.createElement('div');
         messageElement.className = 'message';
-        messageElement.style.fontFamily = (msg.username === JSON.parse(localStorage.getItem('user'))?.username)
-            ? userFont
-            : 'inherit'; // Applies font to the current user's messages
+
+        // Apply font if available, otherwise use default
+        const userFont = fontMap[msg.username] || 'Arial, sans-serif';
+        messageElement.style.fontFamily = userFont;
+
         messageElement.innerHTML = `
             <div class="message-header">
                 <span class="username">${msg.username}</span>
@@ -218,6 +216,72 @@ async function loadMessages() {
     }
 }
 
+// Save font to server when user selects one
+async function saveSelectedFont(fontFamily) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return;
+
+    try {
+        const response = await fetch('/api/savefont', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: user.username,
+                font: fontFamily
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save font preference');
+        }
+    } catch (error) {
+        console.error('Error saving font:', error);
+    }
+}
+
+// Load all users' fonts when messages are fetched
+async function loadUserFonts(messages) {
+    try {
+        // Get unique usernames from messages
+        const usernames = [...new Set(messages.map(msg => msg.username))];
+
+        // Batch request all fonts at once
+        const response = await fetch('/api/getfonts', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usernames })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to load user fonts');
+        }
+
+        const fontMap = await response.json();
+        return fontMap;
+    } catch (error) {
+        console.error('Error loading user fonts:', error);
+        return {};
+    }
+}
+
+function applyFontToMessages(fontFamily) {
+    // Get all messages in the chatlog
+    const messages = document.querySelectorAll('.message');
+
+    // Get the current logged-in username
+    const currentUser = JSON.parse(localStorage.getItem('user'))?.username;
+
+    // Apply the font only to the current user's messages
+    messages.forEach(message => {
+        const usernameElement = message.querySelector('.username');
+        if (usernameElement && usernameElement.textContent === currentUser) {
+            message.style.fontFamily = fontFamily;
+        }
+    });
+}
+
 async function loadFont(fontFamily) {
     try {
         const font = new FontFace(fontFamily, `url(https://fonts.googleapis.com/css2?family=${fontFamily.replace(/'/g, '').replace(/\s+/g, '+')}&display=swap`);
@@ -242,9 +306,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Call this when the font selector changes
 document.getElementById('font-family').addEventListener('change', async (e) => {
     const fontFamily = e.target.value;
-    if (fontFamily.includes('Open Sans')) {
-        await loadFont(fontFamily); // Load web fonts dynamically
-    }
-    localStorage.setItem('selectedFont', fontFamily); // Save preference
-    applyFontToMessages(fontFamily);
+
+    // Save to server and local storage
+    await saveSelectedFont(fontFamily);
+    localStorage.setItem('selectedFont', fontFamily);
+
+    // Re-render messages to apply new font
+    loadMessages();
 });
