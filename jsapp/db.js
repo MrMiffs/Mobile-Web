@@ -10,8 +10,7 @@ mongoose.connect('mongodb://localhost:27017/thiscord', {
 // Users schema
 const usersSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true },
-    passwordHash: { type: String, required: true },
-    font: {type: String, default: 'Arial, sans-serif'},
+    passwordHash: { type: String, required: true }
 });
 const Users = mongoose.model('Users', usersSchema);
 

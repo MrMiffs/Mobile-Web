@@ -1,4 +1,34 @@
 const chatlog = document.getElementById('chatlog');
+const fontMap = {
+    "Arial, sans-serif": {
+        name: "Roboto",
+        src: "url('https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxP.ttf')"
+    },
+    "Times New Roman": {
+        name: "Merriweather",
+        src: "url('https://fonts.gstatic.com/s/merriweather/v28/u-4n0qyriQwlOrhSvowK_l52xwNZWMf_.ttf')"
+    },
+};
+
+
+
+async function loadFontFace(fontKey) {
+    const fontInfo = fontMap[fontKey];
+    if (!fontInfo) return;
+
+    const fontFace = new FontFace(fontInfo.name, fontInfo.src, {
+        display: 'swap'
+    });
+
+    try {
+        await fontFace.load();
+        document.fonts.add(fontFace);
+        document.body.style.fontFamily = `'${fontInfo.name}', ${fontKey}`;
+    } catch (error) {
+        console.error(`Failed to load font "${fontInfo.name}":`, error);
+    }
+}
+
 
 // Initialize Socket.io connection
 const socket = io('https://testname.mooo.com', {
@@ -12,8 +42,9 @@ const socket = io('https://testname.mooo.com', {
 });
 
 // Listen for new messages
-socket.on('new_message', () => {
+socket.on('new_message', (message) => {
     loadMessages();
+    showNotification(message.username, message.message);
 });
 socket.on('connect_error', (err) => {
     console.error('Connection error:', err);
@@ -84,6 +115,11 @@ function updateUIAfterLogin(username) {
     const welcomeMsg = document.getElementById('welcome-msg');
     welcomeMsg.textContent = `Welcome, ${username}!`;
 
+    // Show/hide notification button based on stored preference
+    const notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+    document.getElementById('notification-button').style.display =
+        (Notification.permission === "granted" || notificationsEnabled) ? 'none' : 'inline-block';
+
     loadMessages();
 }
 
@@ -137,12 +173,6 @@ async function sendMessage(event) {
             body: JSON.stringify({ message })
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to send message');
-        }
-
-        const newMessage = await response.json();
         messageInput.value = '';
         loadMessages();
 
@@ -165,18 +195,11 @@ function handleApiError(error) {
 }
 
 async function renderMessages(messages) {
-    const fontMap = await loadUserFonts(messages);
-    const currentUser = JSON.parse(localStorage.getItem('user'))?.username;
-
     chatlog.innerHTML = '';
 
     messages.forEach(msg => {
         const messageElement = document.createElement('div');
         messageElement.className = 'message';
-
-        // Apply font if available, otherwise use default
-        const userFont = fontMap[msg.username] || 'Arial, sans-serif';
-        messageElement.style.fontFamily = userFont;
 
         messageElement.innerHTML = `
             <div class="message-header">
@@ -191,7 +214,6 @@ async function renderMessages(messages) {
     chatlog.scrollTop = chatlog.scrollHeight;
 }
 
-// Update loadMessages to handle errors better
 async function loadMessages() {
     try {
         const response = await fetch('/api/messages', {
@@ -200,10 +222,6 @@ async function loadMessages() {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
         });
-
-        if (!response.ok) {
-            throw new Error('Failed to load messages');
-        }
 
         const messages = await response.json();
         renderMessages(messages);
@@ -216,82 +234,31 @@ async function loadMessages() {
     }
 }
 
-// Save font to server when user selects one
-async function saveSelectedFont(fontFamily) {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) return;
-
-    try {
-        const response = await fetch('/api/savefont', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: user.username,
-                font: fontFamily
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to save font preference');
-        }
-    } catch (error) {
-        console.error('Error saving font:', error);
+// Notification permission and handling
+function requestNotificationPermission() {
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notifications");
+        return;
     }
-}
 
-// Load all users' fonts when messages are fetched
-async function loadUserFonts(messages) {
-    try {
-        // Get unique usernames from messages
-        const usernames = [...new Set(messages.map(msg => msg.username))];
-
-        // Batch request all fonts at once
-        const response = await fetch('/api/getfonts', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usernames })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to load user fonts');
-        }
-
-        const fontMap = await response.json();
-        return fontMap;
-    } catch (error) {
-        console.error('Error loading user fonts:', error);
-        return {};
-    }
-}
-
-function applyFontToMessages(fontFamily) {
-    // Get all messages in the chatlog
-    const messages = document.querySelectorAll('.message');
-
-    // Get the current logged-in username
-    const currentUser = JSON.parse(localStorage.getItem('user'))?.username;
-
-    // Apply the font only to the current user's messages
-    messages.forEach(message => {
-        const usernameElement = message.querySelector('.username');
-        if (usernameElement && usernameElement.textContent === currentUser) {
-            message.style.fontFamily = fontFamily;
+    Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+            alert("Notifications enabled! You'll receive alerts for new messages.");
+            localStorage.setItem('notificationsEnabled', 'true');
+        } else {
+            localStorage.setItem('notificationsEnabled', 'false');
         }
     });
 }
 
-async function loadFont(fontFamily) {
-    try {
-        const font = new FontFace(fontFamily, `url(https://fonts.googleapis.com/css2?family=${fontFamily.replace(/'/g, '').replace(/\s+/g, '+')}&display=swap`);
-        await font.load();
-        document.fonts.add(font);
-        console.log(`Font ${fontFamily} loaded`);
-    } catch (error) {
-        console.error(`Failed to load font ${fontFamily}:`, error);
-    }
+function showNotification(username, message) {
+    // Create notification
+    new Notification(`New message from ${username}`, {
+        body: message,
+        icon: '/path/to/icon.png' // Optional
+    });
 }
+
 
 // Call this when the page loads
 document.addEventListener('DOMContentLoaded', () => {
@@ -299,18 +266,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('login-form').addEventListener('submit', login);
     document.getElementById('logout-button').addEventListener('click', logout);
     document.getElementById('chat-form').addEventListener('submit', sendMessage);
+    document.getElementById('notification-button').addEventListener('click', requestNotificationPermission);
+    const fontSelector = document.getElementById("font-family");
 
-    loadMessages();
-});
+    if (fontSelector) {
+        fontSelector.addEventListener("change", (e) => {
+            const selectedFont = e.target.value;
+            loadFontFace(selectedFont);
+        });
 
-// Call this when the font selector changes
-document.getElementById('font-family').addEventListener('change', async (e) => {
-    const fontFamily = e.target.value;
+        // Load initial font if needed
+        loadFontFace(fontSelector.value);
+    }
 
-    // Save to server and local storage
-    await saveSelectedFont(fontFamily);
-    localStorage.setItem('selectedFont', fontFamily);
 
-    // Re-render messages to apply new font
     loadMessages();
 });

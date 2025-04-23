@@ -47,51 +47,6 @@ function authenticateToken(req, res, next) {
 
 app.post('/api/login', users.login);
 app.post('/api/register', users.register);
-// Add these endpoints to your Express server
-
-// Get multiple fonts at once (more efficient)
-app.post('/api/getfonts', async (req, res) => {
-    try {
-        const { usernames } = req.body;
-        const users = await db.Users.find({
-            username: { $in: usernames }
-        }).select('username font');
-
-        const fontMap = {};
-        users.forEach(user => {
-            fontMap[user.username] = user.font || 'Arial';
-        });
-
-        res.json(fontMap);
-    } catch (err) {
-        res.status(500).json({ message: 'Error fetching fonts', error: err });
-    }
-});
-
-// Keep your existing single-user font endpoints
-app.post('/api/savefont', authenticateToken, async (req, res) => {
-    try {
-        await db.Users.findOneAndUpdate(
-            { username: req.user.username },
-            { font: req.body.font }
-        );
-        res.json({ message: 'Font saved successfully' });
-    } catch (err) {
-        res.status(500).json({ message: 'Error saving font', error: err });
-    }
-});
-
-app.post('/api/getfont', authenticateToken, async (req, res) => {
-    try {
-        const user = await db.Users.findOne({ username: req.user.username });
-        res.json({
-            message: 'Successfully loaded font',
-            font: user?.font || 'Arial'
-        });
-    } catch (err) {
-        res.status(500).json({ message: 'Error getting font', error: err });
-    }
-});
 app.post('/api/logout', (req, res) => {
     res.clearCookie('token');
     res.json({ message: 'Logged out successfully' });
@@ -101,8 +56,8 @@ app.get('/api/protected', authenticateToken, (req, res) => {
 });
 app.get('/api/messages', async (req, res) => {
     try {
-        const messages = await db.Messages.find().sort({ timestamp: 1 }).limit(50);
-        res.json(messages);
+        const messages = await db.Messages.find().sort({ timestamp: -1 }).limit(50);
+        res.json(messages.reverse());
     } catch (err) {
         res.status(500).json({ message: 'Error fetching messages' });
     }
@@ -123,8 +78,12 @@ app.post('/api/messages', authenticateToken, async (req, res) => {
 
         await newMessage.save();
 
-        // Emit to all connected clients if using WebSockets
-        io.emit('new_message', newMessage); // If you implement WebSockets later
+        // Emit the complete message object
+        io.emit('new_message', {
+            username: req.user.username,
+            message: message.trim(),
+            timestamp: newMessage.timestamp
+        });
 
         res.status(201).json(newMessage);
     } catch (err) {
